@@ -3,118 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cavalcanti LP - Applications</title>
+  <title>Cavalcanti Apps</title>
   <style>
     :root {
       --bg: #0f172a;
       --card-bg: #1e293b;
       --accent: #38bdf8;
-      --accent-hover: #0284c7;
       --text-main: #f8fafc;
       --text-sub: #94a3b8;
       --border: #475569;
+      --input-bg: #334155;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text-main);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 16px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 600px;
-      text-align: center;
-    }
-
-    .header {
-      margin-bottom: 32px;
-    }
-
-    .header h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .header p {
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; }
+    
+    .container { width: 100%; max-width: 600px; text-align: center; position: relative; }
+    
+    /* Sélecteur de langue discret */
+    .lang-selector { position: absolute; top: 0; right: 0; }
+    .lang-selector select {
+      background: transparent;
       color: var(--text-sub);
-      font-size: 1rem;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 16px;
-    }
-
-    .app-link {
-      background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      outline: none;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
       transition: all 0.2s ease;
     }
-
-    .app-link:hover {
+    .lang-selector select:hover {
+      color: var(--text-main);
       border-color: var(--accent);
-      transform: translateY(-2px);
     }
 
-    .app-link h2 {
-      font-size: 1.2rem;
-      color: var(--accent);
-      margin-bottom: 6px;
-    }
+    .header { margin-bottom: 32px; margin-top: 24px; }
+    .header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+    .header p { color: var(--text-sub); font-size: 1rem; }
 
-    .app-link p {
-      font-size: 0.875rem;
-      color: var(--text-sub);
-      text-align: left;
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+    .app-link {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px;
+      padding: 20px; text-decoration: none; color: inherit; display: flex; flex-direction: column;
+      align-items: flex-start; transition: all 0.2s ease;
     }
+    .app-link:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .app-link h2 { font-size: 1.2rem; color: var(--accent); margin-bottom: 6px; }
+    .app-link p { font-size: 0.875rem; color: var(--text-sub); text-align: left; }
   </style>
 </head>
 <body>
 
   <div class="container">
+    <div class="lang-selector">
+      <select id="langSelect" onchange="changeLang(this.value)">
+        <option value="fr">FR</option>
+        <option value="pt">PT</option>
+      </select>
+    </div>
+
     <div class="header">
-      <h1>Os apps do Fufs</h1>
-      <p>Sélectionnez une application pour commencer</p>
+      <h1>Cavalcanti Apps</h1>
+      <p data-i18n="subtitle">Sélectionnez une application pour commencer</p>
     </div>
 
     <div class="grid">
-      <!-- Carte vers l'application Calories -->
       <a href="/calories" class="app-link">
-        <h2>🔥 Calculateur Calories</h2>
-        <p>Calculez vos besoins énergétiques et votre déficit personnalisé.</p>
+        <h2>🔥 <span data-i18n="app_calories_title">Calculateur Calories</span></h2>
+        <p data-i18n="app_calories_desc">Calculez vos besoins énergétiques et votre déficit personnalisé.</p>
       </a>
-
-      <!-- Emplacement pour vos futures apps -->
-      <!-- 
-      <a href="/autre-app" class="app-link">
-        <h2>🚀 Nouvelle App</h2>
-        <p>Description de la future application.</p>
-      </a> 
-      -->
     </div>
   </div>
 
+  <script>
+    const translations = {
+      fr: {
+        subtitle: "Sélectionnez une application pour commencer",
+        app_calories_title: "Calculateur Calories",
+        app_calories_desc: "Calculez vos besoins énergétiques et votre déficit personnalisé."
+      },
+      pt: {
+        subtitle: "Selecione um aplicativo para começar",
+        app_calories_title: "Calculadora de Calorias",
+        app_calories_desc: "Calcule suas necessidades energéticas e seu déficit personalizado."
+      }
+    };
+
+    function setLanguage(lang) {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+          el.innerText = translations[lang][key];
+        }
+      });
+      document.getElementById('langSelect').value = lang;
+      localStorage.setItem('preferred_lang', lang);
+    }
+
+    function changeLang(lang) {
+      setLanguage(lang);
+    }
+
+    const savedLang = localStorage.getItem('preferred_lang') || (navigator.language.startsWith('pt') ? 'pt' : 'fr');
+    setLanguage(savedLang);
+  </script>
 </body>
 </html>
-
