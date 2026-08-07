@@ -20,27 +20,17 @@
     
     .container { width: 100%; max-width: 600px; text-align: center; position: relative; }
     
-    /* Sélecteur de langue discret */
+    .logo { max-width: 120px; margin: 0 auto 20px auto; display: block; }
+
     .lang-selector { position: absolute; top: 0; right: 0; }
     .lang-selector select {
-      background: transparent;
-      color: var(--text-sub);
-      border: 1px solid var(--border);
-      padding: 4px 8px;
-      border-radius: 6px;
-      cursor: pointer;
-      outline: none;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      transition: all 0.2s ease;
+      background: transparent; color: var(--text-sub); border: 1px solid var(--border);
+      padding: 4px 8px; border-radius: 6px; cursor: pointer; outline: none;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; transition: all 0.2s ease;
     }
-    .lang-selector select:hover {
-      color: var(--text-main);
-      border-color: var(--accent);
-    }
+    .lang-selector select:hover { color: var(--text-main); border-color: var(--accent); }
 
-    .header { margin-bottom: 32px; margin-top: 24px; }
+    .header { margin-bottom: 32px; }
     .header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
     .header p { color: var(--text-sub); font-size: 1rem; }
 
@@ -58,6 +48,8 @@
 <body>
 
   <div class="container">
+    <img src="logo.png" alt="Logo" class="logo">
+    
     <div class="lang-selector">
       <select id="langSelect" onchange="changeLang(this.value)">
         <option value="fr">FR</option>
@@ -66,7 +58,7 @@
     </div>
 
     <div class="header">
-      <h1>Os apps do Fufs</h1>
+      <h1>Cavalcanti Apps</h1>
       <p data-i18n="subtitle">Sélectionnez une application pour commencer</p>
     </div>
 
