@@ -12,39 +12,113 @@
   <meta name="mobile-web-app-capable" content="yes">
 
   <style>
+    :root {
+      --primary: #007aff;
+      --bg: #f2f2f7;
+      --card-bg: #ffffff;
+      --text: #1c1c1e;
+      --subtext: #8e8e93;
+    }
+
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #f4f6f8; margin: 0; padding: 20px; color: #333; }
-    .card { background: white; padding: 20px; border-radius: 16px; max-width: 400px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    h1 { font-size: 1.4rem; text-align: center; margin-bottom: 20px; }
-    label { display: block; margin-top: 10px; font-weight: 600; font-size: 0.9rem; }
-    input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
-    button { width: 100%; background: #007aff; color: white; border: none; padding: 14px; border-radius: 8px; margin-top: 20px; font-size: 1rem; font-weight: bold; }
-    .result { margin-top: 20px; padding: 15px; background: #eef6ff; border-radius: 8px; text-align: center; font-size: 1.2rem; font-weight: bold; color: #0056b3; display: none; }
+    body { background-color: var(--bg); color: var(--text); margin: 0; padding: 20px 15px; }
+    .container { max-width: 420px; margin: 0 auto; }
+    
+    h1 { font-size: 1.6rem; font-weight: 700; text-align: center; margin-bottom: 20px; }
+    
+    .card { background: var(--card-bg); padding: 20px; border-radius: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); margin-bottom: 20px; }
+    
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: var(--subtext); margin-bottom: 6px; }
+    input, select { width: 100%; padding: 12px 14px; border: 1px solid #e5e5ea; border-radius: 10px; font-size: 1rem; background: #fafafa; color: var(--text); outline: none; }
+    input:focus, select:focus { border-color: var(--primary); background: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    button { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 1rem; font-weight: 600; margin-top: 10px; cursor: pointer; }
+    button:active { transform: scale(0.98); }
+
+    .result-card { display: none; text-align: center; }
+    .calories-val { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin: 10px 0; }
+    
+    .macros { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e5ea; }
+    .macro-item { background: #f8f9fa; padding: 10px 5px; border-radius: 8px; }
+    .macro-num { font-weight: bold; font-size: 1.1rem; }
+    .macro-label { font-size: 0.75rem; color: var(--subtext); }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <h1>Calculateur de Calories</h1>
-    
-    <label for="weight">Poids (kg)</label>
-    <input type="number" id="weight" placeholder="Ex: 75">
+  <div class="container">
+    <h1>Calculateur d'Énergie</h1>
 
-    <label for="height">Taille (cm)</label>
-    <input type="number" id="height" placeholder="Ex: 175">
+    <div class="card">
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="gender">Sexe</label>
+          <select id="gender">
+            <option value="male">Homme</option>
+            <option value="female">Femme</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="age">Âge</label>
+          <input type="number" id="age" placeholder="30">
+        </div>
+      </div>
 
-    <label for="age">Âge</label>
-    <input type="number" id="age" placeholder="Ex: 30">
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="weight">Poids (kg)</label>
+          <input type="number" id="weight" placeholder="75">
+        </div>
+        <div class="form-group">
+          <label for="height">Taille (cm)</label>
+          <input type="number" id="height" placeholder="175">
+        </div>
+      </div>
 
-    <label for="gender">Sexe</label>
-    <select id="gender">
-      <option value="male">Homme</option>
-      <option value="female">Femme</option>
-    </select>
+      <div class="form-group">
+        <label for="activity">Niveau d'activité</label>
+        <select id="activity">
+          <option value="1.2">Sédentaire (peu ou pas d'exercice)</option>
+          <option value="1.375">Légèrement actif (1-3 fois/semaine)</option>
+          <option value="1.55" selected>Modérément actif (3-5 fois/semaine)</option>
+          <option value="1.725">Très actif (6-7 fois/semaine)</option>
+        </select>
+      </div>
 
-    <button onclick="calculate()">Calculer</button>
+      <div class="form-group">
+        <label for="goal">Objectif</label>
+        <select id="goal">
+          <option value="0.85">Perte de poids (-15%)</option>
+          <option value="1" selected>Maintien de poids</option>
+          <option value="1.15">Prise de masse (+15%)</option>
+        </select>
+      </div>
 
-    <div id="result" class="result"></div>
+      <button onclick="calculate()">Calculer</button>
+    </div>
+
+    <div id="result" class="card result-card">
+      <label>Besoin quotidien recommandé</label>
+      <div class="calories-val" id="kcal">0 kcal</div>
+      
+      <div class="macros">
+        <div class="macro-item">
+          <div class="macro-num" id="prot">0g</div>
+          <div class="macro-label">Protéines</div>
+        </div>
+        <div class="macro-item">
+          <div class="macro-num" id="carbs">0g</div>
+          <div class="macro-label">Glucides</div>
+        </div>
+        <div class="macro-item">
+          <div class="macro-num" id="fat">0g</div>
+          <div class="macro-label">Lipides</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -53,21 +127,35 @@
       const h = parseFloat(document.getElementById('height').value);
       const a = parseFloat(document.getElementById('age').value);
       const g = document.getElementById('gender').value;
+      const act = parseFloat(document.getElementById('activity').value);
+      const goal = parseFloat(document.getElementById('goal').value);
 
       if (!w || !h || !a) {
-        alert('Veuillez remplir tous les champs');
+        alert('Veuillez remplir tous les champs.');
         return;
       }
 
+      // Calcul BMR (Mifflin-St Jeor)
       let bmr = (10 * w) + (6.25 * h) - (5 * a);
       bmr += (g === 'male') ? 5 : -161;
 
-      const resultDiv = document.getElementById('result');
-      resultDiv.style.display = 'block';
-      resultDiv.innerHTML = `Besoin de base :<br><strong>${Math.round(bmr)} kcal / jour</strong>`;
+      // Calories totales selon activité & objectif
+      const totalKcal = Math.round(bmr * act * goal);
+
+      // Calcul macros
+      const protGrams = Math.round(w * 2); // 2g/kg
+      const fatGrams = Math.round((totalKcal * 0.25) / 9); // 25% des calories
+      const carbsGrams = Math.round((totalKcal - (protGrams * 4) - (fatGrams * 9)) / 4);
+
+      // Affichage
+      document.getElementById('kcal').innerText = `${totalKcal} kcal`;
+      document.getElementById('prot').innerText = `${protGrams}g`;
+      document.getElementById('carbs').innerText = `${carbsGrams}g`;
+      document.getElementById('fat').innerText = `${fatGrams}g`;
+
+      document.getElementById('result').style.display = 'block';
     }
   </script>
 
 </body>
-</html> 
-
+</html>
