@@ -20,15 +20,15 @@
     
     .container { width: 100%; max-width: 600px; text-align: center; position: relative; }
     
-.logo { 
-  width: 120px; 
-  height: 120px; 
-  border-radius: 50%; 
-  clip-path: circle(44% at center); /* Reste en cercle parfait mais découpe les 6% de bordures extérieures */
-  object-fit: cover; 
-  margin: 0 auto 20px auto; 
-  display: block; 
-}
+    .logo { 
+      width: 120px; 
+      height: 120px; 
+      border-radius: 50%; 
+      clip-path: circle(44% at center);
+      object-fit: cover; 
+      margin: 0 auto 20px auto; 
+      display: block; 
+    }
 
     .lang-selector { position: absolute; top: 0; right: 0; }
     .lang-selector select {
@@ -75,6 +75,11 @@
         <h2>🔥 <span data-i18n="app_calories_title">Calculateur métabolisme</span></h2>
         <p data-i18n="app_calories_desc">Calculez vos besoins énergétiques et votre déficit personnalisé.</p>
       </a>
+
+      <a href="/macros" class="app-link">
+        <h2>📊 <span data-i18n="app_macros_title">Répartition macros</span></h2>
+        <p data-i18n="app_macros_desc">Ajustez vos protéines, lipides et glucides en fonction de votre objectif.</p>
+      </a>
     </div>
   </div>
 
@@ -83,12 +88,16 @@
       fr: {
         subtitle: "Sélectionnez une application pour commencer",
         app_calories_title: "Calculateur métabolisme",
-        app_calories_desc: "Calculez vos besoins énergétiques et votre déficit personnalisé."
+        app_calories_desc: "Calculez vos besoins énergétiques et votre déficit personnalisé.",
+        app_macros_title: "Répartition macros",
+        app_macros_desc: "Ajustez vos protéines, lipides et glucides en fonction de votre objectif."
       },
       pt: {
         subtitle: "Selecione um aplicativo para começar",
         app_calories_title: "Calculadora do metabolismo",
-        app_calories_desc: "Calcule suas necessidades energéticas e seu déficit personalizado."
+        app_calories_desc: "Calcule suas necessidades energéticas e seu déficit personalizado.",
+        app_macros_title: "Divisão de macros",
+        app_macros_desc: "Ajuste suas proteínas, gorduras e carboidratos de acordo com sua meta."
       }
     };
 
