@@ -4,158 +4,269 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculateur Calories</title>
-
-  <!-- Configuration de l'icône -->
-  <link rel="icon" type="image/png" href="icon.png">
-  <link rel="apple-touch-icon" href="icon.png">
-  <meta name="apple-mobile-web-app-title" content="Calories">
-  <meta name="mobile-web-app-capable" content="yes">
-
   <style>
     :root {
-      --primary: #007aff;
-      --bg: #f2f2f7;
-      --card-bg: #ffffff;
-      --text: #1c1c1e;
-      --subtext: #8e8e93;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --input-bg: #334155;
+      --border: #475569;
+      --warning: #f59e0b;
     }
 
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); margin: 0; padding: 20px 15px; }
-    .container { max-width: 420px; margin: 0 auto; }
-    
-    h1 { font-size: 1.6rem; font-weight: 700; text-align: center; margin-bottom: 20px; }
-    
-    .card { background: var(--card-bg); padding: 20px; border-radius: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); margin-bottom: 20px; }
-    
-    .form-group { margin-bottom: 15px; }
-    label { display: block; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: var(--subtext); margin-bottom: 6px; }
-    input, select { width: 100%; padding: 12px 14px; border: 1px solid #e5e5ea; border-radius: 10px; font-size: 1rem; background: #fafafa; color: var(--text); outline: none; }
-    input:focus, select:focus { border-color: var(--primary); background: #fff; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
 
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
 
-    button { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 1rem; font-weight: 600; margin-top: 10px; cursor: pointer; }
-    button:active { transform: scale(0.98); }
+    .app-card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 420px;
+      padding: 24px;
+      border-radius: 24px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+    }
 
-    .result-card { display: none; text-align: center; }
-    .calories-val { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin: 10px 0; }
-    
-    .macros { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e5ea; }
-    .macro-item { background: #f8f9fa; padding: 10px 5px; border-radius: 8px; }
-    .macro-num { font-weight: bold; font-size: 1.1rem; }
-    .macro-label { font-size: 0.75rem; color: var(--subtext); }
+    .header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .header p {
+      color: var(--text-sub);
+      font-size: 0.875rem;
+      margin-top: 4px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      background-color: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+      -webkit-appearance: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row .form-group {
+      flex: 1;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 8px;
+      background-color: var(--accent);
+      color: #0f172a;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    button:active {
+      transform: scale(0.98);
+      background-color: var(--accent-hover);
+    }
+
+    .result-box {
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 16px;
+      text-align: center;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .result-box.active {
+      display: block;
+    }
+
+    .result-title {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .result-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 4px 0;
+    }
+
+    .result-sub {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+    }
+
+    .warning-text {
+      color: var(--warning);
+      font-size: 0.75rem;
+      margin-top: 8px;
+      line-height: 1.2;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>Calculateur d'Énergie</h1>
-
-    <div class="card">
-      <div class="grid-2">
-        <div class="form-group">
-          <label for="gender">Sexe</label>
-          <select id="gender">
-            <option value="male">Homme</option>
-            <option value="female">Femme</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="age">Âge</label>
-          <input type="number" id="age" placeholder="30">
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="form-group">
-          <label for="weight">Poids (kg)</label>
-          <input type="number" id="weight" placeholder="75">
-        </div>
-        <div class="form-group">
-          <label for="height">Taille (cm)</label>
-          <input type="number" id="height" placeholder="175">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="activity">Niveau d'activité</label>
-        <select id="activity">
-          <option value="1.2">Sédentaire (peu ou pas d'exercice)</option>
-          <option value="1.375">Légèrement actif (1-3 fois/semaine)</option>
-          <option value="1.55" selected>Modérément actif (3-5 fois/semaine)</option>
-          <option value="1.725">Très actif (6-7 fois/semaine)</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="goal">Objectif</label>
-        <select id="goal">
-          <option value="0.85">Perte de poids (-15%)</option>
-          <option value="1" selected>Maintien de poids</option>
-          <option value="1.15">Prise de masse (+15%)</option>
-        </select>
-      </div>
-
-      <button onclick="calculate()">Calculer</button>
+  <div class="app-card">
+    <div class="header">
+      <h1>Objectif Calories</h1>
+      <p>Calculateur sur-mesure</p>
     </div>
 
-    <div id="result" class="card result-card">
-      <label>Besoin quotidien recommandé</label>
-      <div class="calories-val" id="kcal">0 kcal</div>
-      
-      <div class="macros">
-        <div class="macro-item">
-          <div class="macro-num" id="prot">0g</div>
-          <div class="macro-label">Protéines</div>
-        </div>
-        <div class="macro-item">
-          <div class="macro-num" id="carbs">0g</div>
-          <div class="macro-label">Glucides</div>
-        </div>
-        <div class="macro-item">
-          <div class="macro-num" id="fat">0g</div>
-          <div class="macro-label">Lipides</div>
-        </div>
+    <div class="row">
+      <div class="form-group">
+        <label for="height">Taille (cm)</label>
+        <input type="number" id="height" value="178">
       </div>
+      <div class="form-group">
+        <label for="weight">Poids (kg)</label>
+        <input type="number" id="weight" value="90">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label for="age">Âge</label>
+        <input type="number" id="age" value="30">
+      </div>
+      <div class="form-group">
+        <label for="gender">Sexe</label>
+        <select id="gender">
+          <option value="male">Homme</option>
+          <option value="female">Femme</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="activity">Niveau d'activité</label>
+      <select id="activity">
+        <option value="1.2">Sédentaire (bureau)</option>
+        <option value="1.375" selected>Léger (1-3x / semaine)</option>
+        <option value="1.55">Modéré (3-5x / semaine)</option>
+        <option value="1.725">Très actif (6-7x / semaine)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="goal">Rythme de perte souhaité</label>
+      <select id="goal">
+        <option value="0.25">0,25 kg / semaine (Très facile)</option>
+        <option value="0.5" selected>0,50 kg / semaine (Recommandé)</option>
+        <option value="0.75">0,75 kg / semaine (Soutenu)</option>
+        <option value="1">1,00 kg / semaine (Intense)</option>
+        <option value="1.5">1,50 kg / semaine (Agressif)</option>
+      </select>
+    </div>
+
+    <button onclick="calc()">Calculer l'objectif</button>
+
+    <div class="result-box" id="resultBox">
+      <div class="result-title">Apport quotidien cible</div>
+      <div class="result-value" id="targetVal">0 kcal</div>
+      <div class="result-sub" id="deficitVal">Déficit : 0 kcal/jour</div>
+      <div class="result-sub" id="tdeeVal">Maintien : 0 kcal/jour</div>
+      <div class="warning-text" id="warningVal"></div>
     </div>
   </div>
 
   <script>
-    function calculate() {
-      const w = parseFloat(document.getElementById('weight').value);
+    function calc() {
       const h = parseFloat(document.getElementById('height').value);
+      const w = parseFloat(document.getElementById('weight').value);
       const a = parseFloat(document.getElementById('age').value);
-      const g = document.getElementById('gender').value;
+      const gender = document.getElementById('gender').value;
       const act = parseFloat(document.getElementById('activity').value);
-      const goal = parseFloat(document.getElementById('goal').value);
+      const kgPerWeek = parseFloat(document.getElementById('goal').value);
 
-      if (!w || !h || !a) {
-        alert('Veuillez remplir tous les champs.');
-        return;
+      if (!h || !w || !a) return;
+
+      // Métabolisme de base (BMR)
+      const bmr = (10 * w) + (6.25 * h) - (5 * a) + (gender === 'male' ? 5 : -161);
+      
+      // Dépense énergétique totale (TDEE)
+      const tdee = bmr * act;
+
+      // 1 kg de graisse = 7700 kcal -> déficit journalier nécessaire
+      const dailyDeficit = (kgPerWeek * 7700) / 7;
+      let target = tdee - dailyDeficit;
+
+      // Sécurité : Avertissement si le calcul descend sous le BMR
+      let warningMsg = "";
+      if (target < bmr) {
+        warningMsg = "⚠️ Attention : cet objectif passe en dessous de votre métabolisme de base (" + Math.round(bmr) + " kcal). Cela peut être difficile à maintenir.";
       }
 
-      // Calcul BMR (Mifflin-St Jeor)
-      let bmr = (10 * w) + (6.25 * h) - (5 * a);
-      bmr += (g === 'male') ? 5 : -161;
-
-      // Calories totales selon activité & objectif
-      const totalKcal = Math.round(bmr * act * goal);
-
-      // Calcul macros
-      const protGrams = Math.round(w * 2); // 2g/kg
-      const fatGrams = Math.round((totalKcal * 0.25) / 9); // 25% des calories
-      const carbsGrams = Math.round((totalKcal - (protGrams * 4) - (fatGrams * 9)) / 4);
-
-      // Affichage
-      document.getElementById('kcal').innerText = `${totalKcal} kcal`;
-      document.getElementById('prot').innerText = `${protGrams}g`;
-      document.getElementById('carbs').innerText = `${carbsGrams}g`;
-      document.getElementById('fat').innerText = `${fatGrams}g`;
-
-      document.getElementById('result').style.display = 'block';
+      document.getElementById('targetVal').innerText = Math.round(target) + " kcal";
+      document.getElementById('deficitVal').innerText = "Déficit : -" + Math.round(dailyDeficit) + " kcal/jour";
+      document.getElementById('tdeeVal').innerText = "Maintien : " + Math.round(tdee) + " kcal/jour";
+      document.getElementById('warningVal').innerText = warningMsg;
+      
+      document.getElementById('resultBox').classList.add('active');
     }
   </script>
-
 </body>
 </html>
