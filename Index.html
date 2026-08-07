@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculateur Calories</title>
+
+  <!-- Configuration de l'icône -->
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <meta name="apple-mobile-web-app-title" content="Calories">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f4f6f8; margin: 0; padding: 20px; color: #333; }
+    .card { background: white; padding: 20px; border-radius: 16px; max-width: 400px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    h1 { font-size: 1.4rem; text-align: center; margin-bottom: 20px; }
+    label { display: block; margin-top: 10px; font-weight: 600; font-size: 0.9rem; }
+    input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+    button { width: 100%; background: #007aff; color: white; border: none; padding: 14px; border-radius: 8px; margin-top: 20px; font-size: 1rem; font-weight: bold; }
+    .result { margin-top: 20px; padding: 15px; background: #eef6ff; border-radius: 8px; text-align: center; font-size: 1.2rem; font-weight: bold; color: #0056b3; display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Calculateur de Calories</h1>
+    
+    <label for="weight">Poids (kg)</label>
+    <input type="number" id="weight" placeholder="Ex: 75">
+
+    <label for="height">Taille (cm)</label>
+    <input type="number" id="height" placeholder="Ex: 175">
+
+    <label for="age">Âge</label>
+    <input type="number" id="age" placeholder="Ex: 30">
+
+    <label for="gender">Sexe</label>
+    <select id="gender">
+      <option value="male">Homme</option>
+      <option value="female">Femme</option>
+    </select>
+
+    <button onclick="calculate()">Calculer</button>
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    function calculate() {
+      const w = parseFloat(document.getElementById('weight').value);
+      const h = parseFloat(document.getElementById('height').value);
+      const a = parseFloat(document.getElementById('age').value);
+      const g = document.getElementById('gender').value;
+
+      if (!w || !h || !a) {
+        alert('Veuillez remplir tous les champs');
+        return;
+      }
+
+      let bmr = (10 * w) + (6.25 * h) - (5 * a);
+      bmr += (g === 'male') ? 5 : -161;
+
+      const resultDiv = document.getElementById('result');
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `Besoin de base :<br><strong>${Math.round(bmr)} kcal / jour</strong>`;
+    }
+  </script>
+
+</body>
+</html>
+
