@@ -4,6 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cavalcanti Apps</title>
+
+  <!-- Manifest PWA -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Favicons Standard -->
+  <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="logo.png">
+
+  <!-- Favicon / App Icon pour iOS (Apple) -->
+  <link rel="apple-touch-icon" href="logo.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Cavalcanti">
+
   <style>
     :root {
       --bg: #0f172a;
@@ -52,17 +66,17 @@
     .app-link h2 { font-size: 1.2rem; color: var(--accent); margin-bottom: 6px; }
     .app-link p { font-size: 0.875rem; color: var(--text-sub); text-align: left; }
 
-    /* Style du bouton Télécharger */
+    /* Bouton d'installation */
     .install-container { margin-top: 32px; }
     .install-btn {
-      display: none; /* Masqué par défaut */
+      display: none;
       width: 100%;
       background: var(--accent);
       color: var(--bg);
       border: none;
       border-radius: 12px;
       padding: 12px 20px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -99,15 +113,19 @@
       </a>
     </div>
 
-    <!-- Bouton d'installation -->
     <div class="install-container">
       <button id="installBtn" class="install-btn">
-        📲 <span data-i18n="install_btn">Télécharger l'application</span>
+        📲 <span id="installBtnText" data-i18n="install_btn">Télécharger l'application</span>
       </button>
     </div>
   </div>
 
   <script>
+    // Enregistrement du Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
     const translations = {
       fr: {
         subtitle: "Sélectionnez une application pour commencer",
@@ -115,7 +133,8 @@
         app_calories_desc: "Calculez vos besoins énergétiques et votre déficit personnalisé.",
         app_macros_title: "Répartition macros",
         app_macros_desc: "Ajustez vos protéines, lipides et glucides en fonction de votre objectif.",
-        install_btn: "Télécharger l'application"
+        install_btn: "Télécharger l'application",
+        install_ios: "Pour installer : appuyez sur Partager ⎋ puis 'Sur l'écran d'accueil' ➕"
       },
       pt: {
         subtitle: "Selecione um aplicativo para começar",
@@ -123,7 +142,8 @@
         app_calories_desc: "Calcule suas necessidades energéticas e seu déficit personalizado.",
         app_macros_title: "Divisão de macros",
         app_macros_desc: "Ajuste suas proteínas, gorduras e carboidratos de acordo com sua meta.",
-        install_btn: "Baixar o aplicativo"
+        install_btn: "Baixar o aplicativo",
+        install_ios: "Para instalar: toque em Compartilhar ⎋ e 'Adicionar à Tela de Início' ➕"
       }
     };
 
@@ -145,34 +165,43 @@
     const savedLang = localStorage.getItem('preferred_lang') || (navigator.language.startsWith('pt') ? 'pt' : 'fr');
     setLanguage(savedLang);
 
-    // Gestion de l'installation PWA
+    // Détection PWA (Android / Desktop vs iOS)
     let deferredPrompt;
     const installBtn = document.getElementById('installBtn');
-
-    // Vérifie si l'application est déjà lancée en mode installé
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+    const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
 
     if (!isStandalone) {
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installBtn.style.display = 'block'; // Affiche le bouton uniquement si installable
-      });
+      if (isIos) {
+        // iOS Safari (Pas d'événement automatique)
+        installBtn.style.display = 'block';
+        installBtn.addEventListener('click', () => {
+          const currentLang = localStorage.getItem('preferred_lang') || 'fr';
+          alert(translations[currentLang].install_ios);
+        });
+      } else {
+        // Android / Chromium / Desktop
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          installBtn.style.display = 'block';
+        });
 
-      installBtn.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
+        installBtn.addEventListener('click', async () => {
+          if (!deferredPrompt) return;
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          if (outcome === 'accepted') {
+            installBtn.style.display = 'none';
+          }
+          deferredPrompt = null;
+        });
+
+        window.addEventListener('appinstalled', () => {
           installBtn.style.display = 'none';
-        }
-        deferredPrompt = null;
-      });
-
-      window.addEventListener('appinstalled', () => {
-        installBtn.style.display = 'none';
-        deferredPrompt = null;
-      });
+          deferredPrompt = null;
+        });
+      }
     }
   </script>
 </body>
