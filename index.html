@@ -51,6 +51,23 @@
     .app-link:hover { border-color: var(--accent); transform: translateY(-2px); }
     .app-link h2 { font-size: 1.2rem; color: var(--accent); margin-bottom: 6px; }
     .app-link p { font-size: 0.875rem; color: var(--text-sub); text-align: left; }
+
+    /* Style du bouton Télécharger */
+    .install-container { margin-top: 32px; }
+    .install-btn {
+      display: none; /* Masqué par défaut */
+      width: 100%;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .install-btn:hover { opacity: 0.9; transform: translateY(-1px); }
   </style>
 </head>
 <body>
@@ -81,6 +98,13 @@
         <p data-i18n="app_macros_desc">Ajustez vos protéines, lipides et glucides en fonction de votre objectif.</p>
       </a>
     </div>
+
+    <!-- Bouton d'installation -->
+    <div class="install-container">
+      <button id="installBtn" class="install-btn">
+        📲 <span data-i18n="install_btn">Télécharger l'application</span>
+      </button>
+    </div>
   </div>
 
   <script>
@@ -90,14 +114,16 @@
         app_calories_title: "Calculateur métabolisme",
         app_calories_desc: "Calculez vos besoins énergétiques et votre déficit personnalisé.",
         app_macros_title: "Répartition macros",
-        app_macros_desc: "Ajustez vos protéines, lipides et glucides en fonction de votre objectif."
+        app_macros_desc: "Ajustez vos protéines, lipides et glucides en fonction de votre objectif.",
+        install_btn: "Télécharger l'application"
       },
       pt: {
         subtitle: "Selecione um aplicativo para começar",
         app_calories_title: "Calculadora do metabolismo",
         app_calories_desc: "Calcule suas necessidades energéticas e seu déficit personalizado.",
         app_macros_title: "Divisão de macros",
-        app_macros_desc: "Ajuste suas proteínas, gorduras e carboidratos de acordo com sua meta."
+        app_macros_desc: "Ajuste suas proteínas, gorduras e carboidratos de acordo com sua meta.",
+        install_btn: "Baixar o aplicativo"
       }
     };
 
@@ -118,6 +144,36 @@
 
     const savedLang = localStorage.getItem('preferred_lang') || (navigator.language.startsWith('pt') ? 'pt' : 'fr');
     setLanguage(savedLang);
+
+    // Gestion de l'installation PWA
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    // Vérifie si l'application est déjà lancée en mode installé
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+
+    if (!isStandalone) {
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block'; // Affiche le bouton uniquement si installable
+      });
+
+      installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          installBtn.style.display = 'none';
+        }
+        deferredPrompt = null;
+      });
+
+      window.addEventListener('appinstalled', () => {
+        installBtn.style.display = 'none';
+        deferredPrompt = null;
+      });
+    }
   </script>
 </body>
 </html>
