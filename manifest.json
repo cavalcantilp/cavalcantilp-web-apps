@@ -1,6 +1,6 @@
 {
-  "name": "Calculateur Calories",
-  "short_name": "Calories",
+  "name": "Apps do Fufs",
+  "short_name": "Fufs",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
