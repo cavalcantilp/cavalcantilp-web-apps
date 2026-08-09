@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Calculateur Investissement Locatif</title>
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --input-bg: #334155;
+      --border: #475569;
+      --warning: #f59e0b;
+      --positive: #34d399;
+      --negative: #f87171;
+    }
+
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 0 auto; padding: 16px; background: var(--bg); color: var(--text-main); overflow-x: hidden; }
+
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .back-link { color: var(--accent); text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+    .lang-selector select {
+      background: transparent; color: var(--text-sub); border: 1px solid var(--border);
+      padding: 3px 6px; border-radius: 6px; cursor: pointer; outline: none;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; transition: all 0.2s ease;
+    }
+    .lang-selector select:hover { color: var(--text-main); border-color: var(--accent); }
+
+    .header { margin-bottom: 20px; text-align: center; }
+    .header h1 { font-size: 1.4em; font-weight: 800; margin-bottom: 6px; color: var(--text-main); }
+    .header p { color: var(--text-sub); font-size: 0.9rem; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; width: 100%; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; gap: 10px; } }
+    fieldset { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 12px; margin-bottom: 10px; width: 100%; min-width: 0; }
+    legend { font-weight: 700; color: var(--accent); font-size: 0.9em; padding: 0 4px; }
+    .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 10px; margin-top: 5px; width: 100%; }
+    .full-width { grid-column: 1 / -1; }
+    label { display: block; font-weight: 600; font-size: 0.78em; margin-bottom: 4px; color: var(--text-sub); }
+    input[type="text"], input[type="number"], select {
+      width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; box-sizing: border-box;
+      font-size: 0.9em; height: 36px; background: var(--input-bg); color: var(--text-main); outline: none; transition: all 0.2s ease;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
+    input[type="range"] { width: 100%; padding: 0; box-sizing: border-box; margin: 5px 0; accent-color: var(--accent); }
+    .radio-group, .switch-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 0.85em; color: var(--text-main); }
+    .radio-group strong, .switch-group strong { color: var(--text-sub); }
+    .radio-group label, .switch-group label { color: var(--text-main); font-weight: 500; margin-bottom: 0; }
+
+    .results { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main); padding: 16px; border-radius: 16px; margin-bottom: 20px; width: 100%; }
+    .results h2 { margin: 0 0 15px 0; color: var(--accent); font-size: 1.1em; }
+    .res-grid { display: grid; grid-template-columns: 1fr; gap: 12px; font-size: 0.95em; }
+    @media (min-width: 600px) { .res-grid { grid-template-columns: 1fr 1fr; gap: 15px; } }
+    .cf-highlight { font-weight: bold; font-size: 1.1em; }
+
+    .charts-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; width: 100%; }
+    .chart-wrapper { height: 200px; width: 100%; background: var(--card-bg); padding: 10px; border-radius: 16px; border: 1px solid var(--border); box-sizing: border-box; position: relative; }
+    canvas { display: block; width: 100% !important; height: 100% !important; }
+
+    .highlight { color: var(--accent); font-weight: bold; }
+    .flex-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-wrap: wrap; gap: 5px; }
+    .btn-small { background: var(--accent); color: #0f172a; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.7em; font-weight: 700; height: 26px; }
+    .btn-small:active { background: var(--accent-hover); }
+    .loyer-container { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+    .regime-disabled { opacity: 0.4; }
+    .regime-disabled input[type="radio"] { cursor: not-allowed; }
+
+    /* Info Bulles : positionnement dynamique géré en JS (voir positionTooltip) */
+    .info-icon { display: inline-block; background: var(--text-sub); color: var(--bg); border-radius: 50%; width: 14px; height: 14px; text-align: center; line-height: 14px; font-size: 10px; font-weight: bold; cursor: help; margin-left: 4px; vertical-align: middle; flex-shrink: 0; }
+    .tooltip { position: relative; display: inline-flex; align-items: center; }
+    .tooltip .tooltiptext {
+      --arrow-left: 15px;
+      visibility: hidden;
+      width: 190px;
+      max-width: calc(100vw - 24px);
+      background-color: var(--input-bg);
+      color: var(--text-main);
+      text-align: left;
+      border-radius: 8px;
+      padding: 8px;
+      position: absolute;
+      z-index: 9999;
+      bottom: 140%;
+      left: 0;
+      opacity: 0;
+      transition: opacity 0.2s;
+      font-size: 11px !important;
+      font-weight: normal;
+      line-height: 1.3;
+      box-shadow: 0px 4px 6px rgba(0,0,0,0.4);
+      pointer-events: none;
+      border: 1px solid var(--border);
+    }
+    .tooltip .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: var(--arrow-left);
+      border-width: 5px;
+      border-style: solid;
+      border-color: var(--input-bg) transparent transparent transparent;
+    }
+    .tooltip:hover .tooltiptext, .tooltip:active .tooltiptext { visibility: visible; opacity: 1; }
+  </style>
+</head>
+<body ontouchstart="">
+
+  <div class="top-bar">
+    <a href="/" class="back-link" data-i18n="back">← Accueil</a>
+    <div class="lang-selector">
+      <select id="langSelect" onchange="changeLang(this.value)">
+        <option value="fr">FR</option>
+        <option value="pt">PT</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1 data-i18n="title">🏢 Calculateur Investissement Locatif</h1>
+    <p data-i18n="subtitle">Analysez la rentabilité de votre projet locatif</p>
+  </div>
+
+  <div class="grid">
+    <div>
+      <fieldset>
+        <legend data-i18n="legend_acquisition">Acquisition du bien</legend>
+        <div class="input-grid">
+          <div class="full-width radio-group" style="padding-bottom: 5px;">
+            <strong data-i18n="type_label">Type :</strong>
+            <label style="display:inline; margin:0;"><input type="radio" name="type" value="ancien" checked> <span data-i18n="type_ancien">Ancien</span></label>
+            <label style="display:inline; margin:0;"><input type="radio" name="type" value="neuf"> <span data-i18n="type_neuf">Neuf</span></label>
+          </div>
+          <div><label data-i18n="valeur_label">Valeur d'achat (€)</label><input type="text" class="euro-input" id="valeur" value="150 000" inputmode="numeric"></div>
+          <div><label data-i18n="agence_label">Frais d'agence (€)</label><input type="text" class="euro-input" id="agence" value="7 500" inputmode="numeric"></div>
+          <div><label data-i18n="travaux_label">Travaux (€)</label><input type="text" class="euro-input" id="travaux" value="15 000" inputmode="numeric"></div>
+
+          <div>
+            <div class="flex-label">
+              <label style="margin:0;"><span data-i18n="notaire_label">Notaire (%)</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_notaire">Impôts et taxes perçus par l'État (environ 8% dans l'ancien, 2 à 3% dans le neuf).</span></span></label>
+              <span class="highlight" id="notaireEuroTxt" style="font-size: 0.85em;">12 000 €</span>
+            </div>
+            <input type="number" id="notairePerc" value="8" step="0.1">
+          </div>
+
+          <div>
+            <label><span data-i18n="garantie_label">Garantie bancaire (€)</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_garantie">Frais liés au prêt (caution, hypothèque). Environ 1 à 1.5% du prêt.</span></span></label>
+            <input type="text" class="euro-input" id="garantie" value="2 000" inputmode="numeric">
+          </div>
+
+          <div><label data-i18n="apport_label">Apport personnel (€)</label><input type="text" class="euro-input" id="apport" value="20 000" inputmode="numeric"></div>
+          <div class="full-width">
+            <div class="flex-label"><label style="margin:0;" data-i18n="duree_label">Durée du crédit</label><span class="highlight" id="dureeDisplay">20 ans</span></div>
+            <input type="range" id="dureeSlider" min="0" max="8" value="5">
+          </div>
+          <div class="full-width">
+            <label><span data-i18n="taux_label">Taux du crédit (%)</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_taux">Taux suggéré automatiquement selon la durée choisie, estimé à partir des baromètres publics d'août 2026. Saisi manuellement dans l'outil : il ne se met pas à jour tout seul, vérifiez le taux du moment avant toute décision.</span></span></label>
+            <input type="number" id="taux" value="3.8" step="0.1">
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <div>
+      <fieldset>
+        <legend data-i18n="legend_exploitation">Exploitation du bien</legend>
+        <div class="input-grid">
+          <div class="full-width radio-group" style="padding-bottom: 5px;">
+            <strong data-i18n="bail_label">Bail :</strong>
+            <label style="display:inline; margin:0;"><input type="radio" name="bailType" value="residentiel" checked> <span data-i18n="bail_residentiel">Résidentiel</span></label>
+            <label style="display:inline; margin:0;"><input type="radio" name="bailType" value="commercial"> <span data-i18n="bail_commercial">Commercial</span></label>
+            <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_bail">Pré-remplit vacance, charges et entretien avec des valeurs typiques du type de bail (triple net en commercial). Ces champs restent modifiables.</span></span>
+          </div>
+          <div class="full-width switch-group" style="padding-bottom: 5px;">
+             <strong data-i18n="base_label">Base :</strong>
+            <label style="display:inline; margin:0;"><input type="radio" name="loyerType" value="mensuel" checked> <span data-i18n="base_mensuel">Mensuel</span></label>
+            <label style="display:inline; margin:0;"><input type="radio" name="loyerType" value="annuel"> <span data-i18n="base_annuel">Annuel</span></label>
+          </div>
+          <div class="full-width loyer-container">
+            <div class="flex-label">
+                <label style="margin:0;" data-i18n="loyer_label">Loyer estimé (€)</label>
+                <div style="display:flex; align-items:center; gap:2px; flex-wrap: wrap;">
+                    <button type="button" class="btn-small" onclick="setEquilibreLoyer()" data-i18n="btn_eq_brut">Éq. brut</button>
+                    <button type="button" class="btn-small" onclick="setEquilibreLoyerNet()" data-i18n="btn_eq_net">Éq. net</button>
+                    <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_eq">Calcule automatiquement le loyer minimum pour un cash-flow à 0 (équilibre) : "Éq. brut" avant impôts, "Éq. net" après impôts.</span></span>
+                </div>
+            </div>
+            <input type="range" id="loyerSlider" min="0" max="3000" step="50" value="0">
+            <input type="text" class="euro-input" id="loyer" value="0" inputmode="numeric">
+          </div>
+
+          <div>
+            <label><span data-i18n="vacance_label">Vacance locative (%)</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_vacance">Part des loyers déduite pour anticiper les vacances ou impayés.</span></span></label>
+            <input type="number" id="vacance" value="5" step="1">
+          </div>
+
+          <div><label data-i18n="entretien_label">Provision pour entretien (€)</label><input type="text" class="euro-input" id="entretien" value="500" inputmode="numeric"></div>
+
+          <div class="full-width">
+            <label><span data-i18n="charges_label">Charges annuelles (€)</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_charges">Taxe foncière, assurance propriétaire, frais de gestion, charges non récupérables.</span></span></label>
+            <input type="text" class="euro-input" id="charges" value="1 500" inputmode="numeric">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend data-i18n="legend_patrimoine">Patrimoine</legend>
+        <div class="input-grid">
+          <div class="full-width">
+            <label data-i18n="scenario_label">Scénario marché immobilier</label>
+            <select id="scenarioMarche">
+              <option value="-0.02" data-i18n="scenario_-2">Très pessimiste (-2% par an)</option>
+              <option value="-0.01" data-i18n="scenario_-1">Pessimiste (-1% par an)</option>
+              <option value="0" selected data-i18n="scenario_0">Neutre (0% par an)</option>
+              <option value="0.015" data-i18n="scenario_15">Optimiste (+1.5% par an)</option>
+              <option value="0.03" data-i18n="scenario_3">Très optimiste (+3% par an)</option>
+            </select>
+          </div>
+          <div class="full-width"><label data-i18n="revente_label">Valeur estimée à la revente (€)</label><input type="text" class="euro-input" id="revente" value="150 000" inputmode="numeric"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend data-i18n="legend_fiscalite">Fiscalité</legend>
+        <div class="radio-group" style="flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 8px;">
+          <label style="margin:0; display:flex; align-items:center;" id="regimeLmnpLabel">
+            <input type="radio" name="regime" value="lmnp" checked id="regimeLmnp"> <span style="margin-left:5px;">LMNP Réel</span>
+            <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_regime_lmnp">Amortissements comptables effaçant l'impôt sur plusieurs années. Réservé à la location meublée résidentielle : non disponible en bail commercial.</span></span>
+          </label>
+          <label style="margin:0; display:flex; align-items:center;">
+            <input type="radio" name="regime" value="is"> <span style="margin-left:5px;">Société à l'IS (15%)</span>
+            <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_regime_is">Imposition sur les bénéfices de la société.</span></span>
+          </label>
+          <label style="margin:0; display:flex; align-items:center;">
+            <input type="radio" name="regime" value="foncier"> <span style="margin-left:5px;">Revenus Fonciers</span>
+            <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_regime_foncier">Imposition classique (TMI + Prélèvements Sociaux).</span></span>
+          </label>
+        </div>
+        <label data-i18n="tmi_label">Tranche marginale + Prélèvements Sociaux (%)</label><input type="number" id="tmi" value="47.2" step="0.1">
+      </fieldset>
+    </div>
+  </div>
+
+  <div class="results">
+    <h2 data-i18n="results_title">Résultats</h2>
+    <div class="res-grid">
+      <div><strong><span data-i18n="res_cf_brut_label">CF brut</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_res_cf_brut">Loyer - Crédit - Charges - Entretien. Avant impôts.</span></span> :</strong> <span id="resCashflow" class="cf-highlight">0</span><span data-i18n="per_month"> € / mois</span></div>
+      <div><strong><span data-i18n="res_cf_net_label">CF net</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_res_cf_net">Cash-flow brut - Impôts payés.</span></span> :</strong> <span id="resCashflowNet" class="cf-highlight">0</span><span data-i18n="per_month"> € / mois</span></div>
+      <div><strong data-i18n="res_brute_label">Rentabilité Brute :</strong> <span id="resBrute">0</span> %</div>
+      <div><strong data-i18n="res_nette_label">Rentabilité Nette :</strong> <span id="resNette">0</span> %</div>
+      <div><strong data-i18n="res_roe_label">Retour sur Fonds Propres :</strong> <span id="resROE">0</span> %</div>
+      <div><strong data-i18n="res_total_label">Coût total du projet :</strong> <span id="resTotal">0</span> €</div>
+      <div><strong><span data-i18n="res_patrimoine_label">Patrimoine net généré</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_res_patrimoine">À la fin du crédit (Valeur bien - Dette + CF cumulé).</span></span> :</strong> <span id="resPatrimoineFinal" style="font-weight: bold; color: var(--accent);">0</span> €</div>
+      <div><strong><span data-i18n="res_annees_label">Années pour rentabiliser</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_res_annees">Temps nécessaire pour que le patrimoine généré couvre l'apport initial.</span></span> :</strong> <span id="resAnneesRenta" style="font-weight: bold;">0</span></div>
+    </div>
+  </div>
+
+  <div class="charts-container" onmouseleave="clearTooltips()">
+    <div class="chart-wrapper"><canvas id="patrimoineChart"></canvas></div>
+    <div class="chart-wrapper"><canvas id="cfChart"></canvas></div>
+    <div class="chart-wrapper"><canvas id="impotChart"></canvas></div>
+  </div>
+
+  <script>
+    let chartPatrimoine = null;
+    let chartCF = null;
+    let chartImpot = null;
+    let currentLang = 'fr';
+    const durees = [1, 5, 7, 10, 15, 20, 25, 30, 35];
+    // Taux moyens indicatifs (hors assurance), estimés à partir des baromètres publics d'août 2026.
+    // À vérifier / ajuster : ces valeurs sont saisies manuellement et ne se mettent pas à jour seules.
+    const tauxParDuree = { 1: 2.2, 5: 2.5, 7: 2.7, 10: 2.9, 15: 3.2, 20: 3.4, 25: 3.55, 30: 3.75, 35: 3.95 };
+
+    const translations = {
+      fr: {
+        back: "← Accueil",
+        title: "🏢 Calculateur Investissement Locatif",
+        subtitle: "Analysez la rentabilité de votre projet locatif",
+        legend_acquisition: "Acquisition du bien",
+        type_label: "Type :",
+        type_ancien: "Ancien",
+        type_neuf: "Neuf",
+        valeur_label: "Valeur d'achat (€)",
+        agence_label: "Frais d'agence (€)",
+        travaux_label: "Travaux (€)",
+        notaire_label: "Notaire (%)",
+        tt_notaire: "Impôts et taxes perçus par l'État (environ 8% dans l'ancien, 2 à 3% dans le neuf).",
+        garantie_label: "Garantie bancaire (€)",
+        tt_garantie: "Frais liés au prêt (caution, hypothèque). Environ 1 à 1.5% du prêt.",
+        apport_label: "Apport personnel (€)",
+        duree_label: "Durée du crédit",
+        annee_suffix: " ans",
+        taux_label: "Taux du crédit (%)",
+        tt_taux: "Taux suggéré automatiquement selon la durée choisie, estimé à partir des baromètres publics d'août 2026. Saisi manuellement dans l'outil : il ne se met pas à jour tout seul, vérifiez le taux du moment avant toute décision.",
+        legend_exploitation: "Exploitation du bien",
+        bail_label: "Bail :",
+        bail_residentiel: "Résidentiel",
+        bail_commercial: "Commercial",
+        tt_bail: "Pré-remplit vacance, charges et entretien avec des valeurs typiques du type de bail (triple net en commercial). Ces champs restent modifiables.",
+        base_label: "Base :",
+        base_mensuel: "Mensuel",
+        base_annuel: "Annuel",
+        loyer_label: "Loyer estimé (€)",
+        btn_eq_brut: "Éq. brut",
+        btn_eq_net: "Éq. net",
+        tt_eq: 'Calcule automatiquement le loyer minimum pour un cash-flow à 0 (équilibre) : "Éq. brut" avant impôts, "Éq. net" après impôts.',
+        vacance_label: "Vacance locative (%)",
+        tt_vacance: "Part des loyers déduite pour anticiper les vacances ou impayés.",
+        entretien_label: "Provision pour entretien (€)",
+        charges_label: "Charges annuelles (€)",
+        tt_charges: "Taxe foncière, assurance propriétaire, frais de gestion, charges non récupérables.",
+        legend_patrimoine: "Patrimoine",
+        scenario_label: "Scénario marché immobilier",
+        "scenario_-2": "Très pessimiste (-2% par an)",
+        "scenario_-1": "Pessimiste (-1% par an)",
+        scenario_0: "Neutre (0% par an)",
+        scenario_15: "Optimiste (+1.5% par an)",
+        scenario_3: "Très optimiste (+3% par an)",
+        revente_label: "Valeur estimée à la revente (€)",
+        legend_fiscalite: "Fiscalité",
+        tt_regime_lmnp: "Amortissements comptables effaçant l'impôt sur plusieurs années. Réservé à la location meublée résidentielle : non disponible en bail commercial.",
+        tt_regime_is: "Imposition sur les bénéfices de la société.",
+        tt_regime_foncier: "Imposition classique (TMI + Prélèvements Sociaux).",
+        tmi_label: "Tranche marginale + Prélèvements Sociaux (%)",
+        results_title: "Résultats",
+        res_cf_brut_label: "CF brut",
+        tt_res_cf_brut: "Loyer - Crédit - Charges - Entretien. Avant impôts.",
+        res_cf_net_label: "CF net",
+        tt_res_cf_net: "Cash-flow brut - Impôts payés.",
+        per_month: " € / mois",
+        res_brute_label: "Rentabilité Brute :",
+        res_nette_label: "Rentabilité Nette :",
+        res_roe_label: "Retour sur Fonds Propres :",
+        res_total_label: "Coût total du projet :",
+        res_patrimoine_label: "Patrimoine net généré",
+        tt_res_patrimoine: "À la fin du crédit (Valeur bien - Dette + CF cumulé).",
+        res_annees_label: "Années pour rentabiliser",
+        tt_res_annees: "Temps nécessaire pour que le patrimoine généré couvre l'apport initial.",
+        infini: "Infini",
+        chart_patrimoine_title: "Patrimoine Net",
+        chart_cf_title: "Cash-Flow Net Cumulé",
+        chart_impot_title: "Impôts Payés / An",
+        chart_x_title: "Années",
+        chart_year_prefix: "Année "
+      },
+      pt: {
+        back: "← Início",
+        title: "🏢 Calculadora de Investimento Imobiliário",
+        subtitle: "Analise a rentabilidade do seu investimento imobiliário",
+        legend_acquisition: "Aquisição do imóvel",
+        type_label: "Tipo:",
+        type_ancien: "Usado",
+        type_neuf: "Novo",
+        valeur_label: "Valor de compra (€)",
+        agence_label: "Taxa de agência (€)",
+        travaux_label: "Obras (€)",
+        notaire_label: "Cartório/Notário (%)",
+        tt_notaire: "Impostos e taxas cobrados pelo Estado (cerca de 8% em imóveis usados, 2 a 3% em novos).",
+        garantie_label: "Garantia bancária (€)",
+        tt_garantie: "Custos ligados ao financiamento (fiança, hipoteca). Cerca de 1 a 1,5% do valor financiado.",
+        apport_label: "Entrada pessoal (€)",
+        duree_label: "Prazo do financiamento",
+        annee_suffix: " anos",
+        taux_label: "Taxa de juros (%)",
+        tt_taux: "Taxa sugerida automaticamente segundo o prazo escolhido, estimada a partir dos boletins públicos de agosto de 2026. Inserida manualmente na ferramenta: não se atualiza sozinha, verifique a taxa atual antes de decidir.",
+        legend_exploitation: "Operação do imóvel",
+        bail_label: "Contrato:",
+        bail_residentiel: "Residencial",
+        bail_commercial: "Comercial",
+        tt_bail: "Preenche automaticamente vacância, encargos e manutenção com valores típicos do tipo de contrato (triple net em comercial). Estes campos continuam editáveis.",
+        base_label: "Base:",
+        base_mensuel: "Mensal",
+        base_annuel: "Anual",
+        loyer_label: "Aluguel estimado (€)",
+        btn_eq_brut: "Eq. bruto",
+        btn_eq_net: "Eq. líquido",
+        tt_eq: 'Calcula automaticamente o aluguel mínimo para um fluxo de caixa igual a 0 (equilíbrio): "Eq. bruto" antes dos impostos, "Eq. líquido" após os impostos.',
+        vacance_label: "Vacância locativa (%)",
+        tt_vacance: "Parte dos aluguéis deduzida para prever vacâncias ou inadimplência.",
+        entretien_label: "Provisão para manutenção (€)",
+        charges_label: "Encargos anuais (€)",
+        tt_charges: "IPTU/imposto predial, seguro do proprietário, taxas de administração, encargos não recuperáveis.",
+        legend_patrimoine: "Patrimônio",
+        scenario_label: "Cenário do mercado imobiliário",
+        "scenario_-2": "Muito pessimista (-2% ao ano)",
+        "scenario_-1": "Pessimista (-1% ao ano)",
+        scenario_0: "Neutro (0% ao ano)",
+        scenario_15: "Otimista (+1,5% ao ano)",
+        scenario_3: "Muito otimista (+3% ao ano)",
+        revente_label: "Valor estimado de revenda (€)",
+        legend_fiscalite: "Fiscalidade",
+        tt_regime_lmnp: "Amortização contábil que reduz o imposto ao longo de vários anos. Reservado à locação mobiliada residencial: não disponível em contrato comercial.",
+        tt_regime_is: "Tributação sobre os lucros da sociedade.",
+        tt_regime_foncier: "Tributação clássica (alíquota marginal + contribuições sociais).",
+        tmi_label: "Alíquota marginal + Contribuições sociais (%)",
+        results_title: "Resultados",
+        res_cf_brut_label: "CF bruto",
+        tt_res_cf_brut: "Aluguel - Financiamento - Encargos - Manutenção. Antes dos impostos.",
+        res_cf_net_label: "CF líquido",
+        tt_res_cf_net: "Fluxo de caixa bruto - Impostos pagos.",
+        per_month: " € / mês",
+        res_brute_label: "Rentabilidade Bruta:",
+        res_nette_label: "Rentabilidade Líquida:",
+        res_roe_label: "Retorno sobre Capital Próprio:",
+        res_total_label: "Custo total do projeto:",
+        res_patrimoine_label: "Patrimônio líquido gerado",
+        tt_res_patrimoine: "Ao final do financiamento (Valor do imóvel - Dívida + CF acumulado).",
+        res_annees_label: "Anos para retorno do investimento",
+        tt_res_annees: "Tempo necessário para que o patrimônio gerado cubra a entrada inicial.",
+        infini: "Infinito",
+        chart_patrimoine_title: "Patrimônio Líquido",
+        chart_cf_title: "Fluxo de Caixa Líquido Acumulado",
+        chart_impot_title: "Impostos Pagos / Ano",
+        chart_x_title: "Anos",
+        chart_year_prefix: "Ano "
+      }
+    };
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key] !== undefined) {
+          el.innerText = translations[lang][key];
+        }
+      });
+      document.getElementById('langSelect').value = lang;
+      localStorage.setItem('preferred_lang', lang);
+      updateDureeDisplay();
+      calculate();
+    }
+
+    function changeLang(lang) { setLanguage(lang); }
+
+    const formatNumber = (num) => Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    const parseFormattedValue = (str) => parseFloat(str.toString().replace(/\s/g, '').replace(',', '.')) || 0;
+
+    function updateDureeDisplay() {
+      const idxDuree = document.getElementById('dureeSlider').value;
+      const t = translations[currentLang] || translations.fr;
+      document.getElementById('dureeDisplay').innerText = durees[idxDuree] + t.annee_suffix;
+    }
+
+    // --- Repositionnement dynamique des tooltips pour rester dans l'écran ---
+    function positionTooltip(tip) {
+      const text = tip.querySelector('.tooltiptext');
+      if (!text) return;
+      const margin = 8;
+      const defaultArrow = 15;
+
+      text.style.left = '0px';
+      text.style.setProperty('--arrow-left', defaultArrow + 'px');
+
+      const rect = text.getBoundingClientRect();
+      let shift = 0;
+      const overflowRight = rect.right - (window.innerWidth - margin);
+      if (overflowRight > 0) {
+        shift = overflowRight;
+      } else {
+        const overflowLeft = margin - rect.left;
+        if (overflowLeft > 0) shift = -overflowLeft;
+      }
+
+      if (shift !== 0) {
+        text.style.left = (-shift) + 'px';
+        const tw = rect.width || text.offsetWidth;
+        let arrowLeft = defaultArrow + shift;
+        arrowLeft = Math.max(10, Math.min(tw - 10, arrowLeft));
+        text.style.setProperty('--arrow-left', arrowLeft + 'px');
+      }
+    }
+
+    function initTooltipPositioning() {
+      document.querySelectorAll('.tooltip').forEach(tip => {
+        const show = () => positionTooltip(tip);
+        tip.addEventListener('mouseenter', show);
+        tip.addEventListener('touchstart', show, { passive: true });
+        tip.addEventListener('focusin', show);
+      });
+      window.addEventListener('resize', () => {
+        document.querySelectorAll('.tooltip').forEach(positionTooltip);
+      });
+    }
+
+    const saveState = () => {
+      try {
+        const state = {};
+        document.querySelectorAll('input, select').forEach(el => {
+          if (el.id === 'langSelect') return;
+          if (el.type === 'radio') { if (el.checked) state[el.name] = el.value; }
+          else { state[el.id] = el.value; }
+        });
+        localStorage.setItem('immoCalcStateV27', JSON.stringify(state));
+      } catch(e) {}
+    };
+
+    const loadState = () => {
+      try {
+        const saved = JSON.parse(localStorage.getItem('immoCalcStateV27'));
+        if (!saved) return false;
+        document.querySelectorAll('input, select').forEach(el => {
+          if (el.id === 'langSelect') return;
+          if (el.type === 'radio') { el.checked = (saved[el.name] === el.value); }
+          else if (saved[el.id] !== undefined) { el.value = saved[el.id]; }
+        });
+        return true;
+      } catch (e) { return false; }
+    };
+
+    document.querySelectorAll('.euro-input').forEach(input => {
+      input.addEventListener('input', function(e) {
+        let cursorPosition = this.selectionStart;
+        let originalLength = this.value.length;
+        let unformatted = this.value.replace(/\s/g, '');
+        if (unformatted !== '') this.value = unformatted.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        cursorPosition += (this.value.length - originalLength);
+        this.setSelectionRange(cursorPosition, cursorPosition);
+        if(this.id === 'loyer') document.getElementById('loyerSlider').value = parseFormattedValue(this.value);
+      });
+    });
+
+    document.getElementById('loyerSlider').addEventListener('input', (e) => {
+        document.getElementById('loyer').value = formatNumber(e.target.value);
+        triggerCalc();
+    });
+
+    document.getElementById('scenarioMarche').addEventListener('change', updateReventeFromScenario);
+
+    function updateReventeFromScenario() {
+        const tauxMarche = parseFloat(document.getElementById('scenarioMarche').value) || 0;
+        const valeurAchat = parseFormattedValue(document.getElementById('valeur').value) || 0;
+        const idxDuree = document.getElementById('dureeSlider').value;
+        const duree = durees[idxDuree] || 20;
+        const nouvelleRevente = valeurAchat * Math.pow(1 + tauxMarche, duree);
+        document.getElementById('revente').value = formatNumber(nouvelleRevente);
+        triggerCalc();
+    }
+
+    document.querySelectorAll('input[name="type"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        document.getElementById('notairePerc').value = e.target.value === 'ancien' ? 8 : 2.5;
+        triggerCalc();
+      });
+    });
+
+    document.getElementById('dureeSlider').addEventListener('input', (e) => {
+      const annees = durees[e.target.value];
+      updateDureeDisplay();
+      document.getElementById('taux').value = tauxParDuree[annees];
+      triggerCalc();
+    });
+
+    const suggestionsBail = {
+      residentiel: { vacance: 5, charges: 1500, entretien: 500 },
+      commercial: { vacance: 3, charges: 800, entretien: 200 }
+    };
+
+    function updateRegimeAvailability(bailValue) {
+      const lmnpInput = document.getElementById('regimeLmnp');
+      const lmnpLabel = document.getElementById('regimeLmnpLabel');
+      if (bailValue === 'commercial') {
+        lmnpInput.disabled = true;
+        lmnpLabel.classList.add('regime-disabled');
+        if (lmnpInput.checked) {
+          lmnpInput.checked = false;
+          document.querySelector('input[name="regime"][value="foncier"]').checked = true;
+        }
+      } else {
+        lmnpInput.disabled = false;
+        lmnpLabel.classList.remove('regime-disabled');
+      }
+    }
+
+    document.querySelectorAll('input[name="bailType"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        const s = suggestionsBail[e.target.value];
+        if (s) {
+          document.getElementById('vacance').value = s.vacance;
+          document.getElementById('charges').value = formatNumber(s.charges);
+          document.getElementById('entretien').value = formatNumber(s.entretien);
+        }
+        updateRegimeAvailability(e.target.value);
+        triggerCalc();
+      });
+    });
+
+    document.querySelectorAll('input, select').forEach(input => {
+      if(input.id !== 'loyerSlider' && input.id !== 'scenarioMarche' && input.id !== 'langSelect') input.addEventListener('input', triggerCalc);
+    });
+
+    function getEquilibreLoyerMensuel() {
+      const valeur = parseFormattedValue(document.getElementById('valeur').value);
+      const agence = parseFormattedValue(document.getElementById('agence').value);
+      const travaux = parseFormattedValue(document.getElementById('travaux').value);
+      const notairePerc = parseFloat(document.getElementById('notairePerc').value) || 0;
+      const garantie = parseFormattedValue(document.getElementById('garantie').value);
+      const apport = parseFormattedValue(document.getElementById('apport').value);
+      const idxDuree = document.getElementById('dureeSlider').value;
+      const duree = durees[idxDuree] || 20;
+      const taux = parseFloat(document.getElementById('taux').value) || 0;
+      const vacancePerc = parseFloat(document.getElementById('vacance').value) || 0;
+      const charges = parseFormattedValue(document.getElementById('charges').value);
+      const entretien = parseFormattedValue(document.getElementById('entretien').value);
+      const coutTotal = valeur + agence + travaux + (valeur * notairePerc / 100) + garantie;
+      const montantPret = Math.max(0, coutTotal - apport);
+
+      let mensualite = 0;
+      if (montantPret > 0 && duree > 0) {
+        const tMensuel = (taux / 100) / 12;
+        mensualite = tMensuel === 0 ? montantPret / (duree * 12) : (montantPret * tMensuel) / (1 - Math.pow(1 + tMensuel, -(duree * 12)));
+      }
+      const loyerAnnuelRequis = ((mensualite * 12) + charges + entretien) / (1 - (vacancePerc / 100));
+      return document.querySelector('input[name="loyerType"]:checked').value === 'mensuel' ? (loyerAnnuelRequis / 12) : loyerAnnuelRequis;
+    }
+
+    function calculateCFNetForRent(loyerMensuelTest) {
+      const valeur = parseFormattedValue(document.getElementById('valeur').value);
+      const agence = parseFormattedValue(document.getElementById('agence').value);
+      const travaux = parseFormattedValue(document.getElementById('travaux').value);
+      const notairePerc = parseFloat(document.getElementById('notairePerc').value) || 0;
+      const garantie = parseFormattedValue(document.getElementById('garantie').value);
+      const apport = parseFormattedValue(document.getElementById('apport').value);
+      const idxDuree = document.getElementById('dureeSlider').value;
+      const duree = durees[idxDuree] || 20;
+      const taux = parseFloat(document.getElementById('taux').value) || 0;
+      const vacancePerc = parseFloat(document.getElementById('vacance').value) || 0;
+      const charges = parseFormattedValue(document.getElementById('charges').value);
+      const entretien = parseFormattedValue(document.getElementById('entretien').value);
+      const regime = document.querySelector('input[name="regime"]:checked').value;
+      const tmi = parseFloat(document.getElementById('tmi').value) || 0;
+
+      const notaireEuro = (valeur * notairePerc) / 100;
+      const coutTotal = valeur + agence + travaux + notaireEuro + garantie;
+      const montantPret = Math.max(0, coutTotal - apport);
+      let mensualite = 0;
+      if (montantPret > 0 && duree > 0) {
+        const tMensuel = (taux / 100) / 12;
+        mensualite = tMensuel === 0 ? montantPret / (duree * 12) : (montantPret * tMensuel) / (1 - Math.pow(1 + tMensuel, -(duree * 12)));
+      }
+      const loyerEffectifAnnuel = (loyerMensuelTest * 12) * (1 - (vacancePerc / 100));
+      let interetsAn1 = montantPret * (taux / 100);
+      let baseImposable = loyerEffectifAnnuel - charges - entretien - interetsAn1;
+      let impotAn1 = 0;
+
+      if (regime === 'foncier' && baseImposable > 0) {
+        impotAn1 = baseImposable * (tmi / 100);
+      } else if (regime === 'is') {
+        let amortissementIS = (valeur + agence + notaireEuro) * 0.03;
+        let baseIS = baseImposable - amortissementIS;
+        if (baseIS > 0) impotAn1 = baseIS * 0.15;
+      } else if (regime === 'lmnp') {
+        let dotation = (valeur * 0.8) / 30 + (travaux + agence + notaireEuro) / 10;
+        let stockAmortissementLMNP = dotation;
+        if (baseImposable > 0) {
+          let amortUtilise = Math.min(stockAmortissementLMNP, baseImposable);
+          let baseLMNP = baseImposable - amortUtilise;
+          if (baseLMNP > 0) impotAn1 = baseLMNP * (tmi / 100);
+        }
+      }
+      return loyerEffectifAnnuel - charges - entretien - impotAn1 - (mensualite * 12);
+    }
+
+    function getEquilibreLoyerNetMensuel() {
+      let min = 0, max = 10000, current = 500;
+      for (let i = 0; i < 40; i++) {
+        current = (min + max) / 2;
+        let cf = calculateCFNetForRent(current);
+        if (Math.abs(cf) < 0.1) break;
+        if (cf > 0) max = current;
+        else min = current;
+      }
+      return document.querySelector('input[name="loyerType"]:checked').value === 'mensuel' ? current : (current * 12);
+    }
+
+    function setEquilibreLoyer() {
+      const eq = getEquilibreLoyerMensuel();
+      document.getElementById('loyer').value = formatNumber(eq);
+      document.getElementById('loyerSlider').value = eq;
+      triggerCalc();
+    }
+
+    function setEquilibreLoyerNet() {
+      const eq = getEquilibreLoyerNetMensuel();
+      document.getElementById('loyer').value = formatNumber(eq);
+      document.getElementById('loyerSlider').value = eq;
+      triggerCalc();
+    }
+
+    function triggerCalc() { calculate(); saveState(); }
+
+    function calculate() {
+      const t = translations[currentLang] || translations.fr;
+      const valeur = parseFormattedValue(document.getElementById('valeur').value);
+      const agence = parseFormattedValue(document.getElementById('agence').value);
+      const travaux = parseFormattedValue(document.getElementById('travaux').value);
+      const notairePerc = parseFloat(document.getElementById('notairePerc').value) || 0;
+      const garantie = parseFormattedValue(document.getElementById('garantie').value);
+      const apport = parseFormattedValue(document.getElementById('apport').value);
+      const revente = parseFormattedValue(document.getElementById('revente').value);
+      const idxDuree = document.getElementById('dureeSlider').value;
+      const duree = durees[idxDuree] || 20;
+      const taux = parseFloat(document.getElementById('taux').value) || 0;
+      const loyerInput = parseFormattedValue(document.getElementById('loyer').value);
+      const isMensuel = document.querySelector('input[name="loyerType"]:checked').value === 'mensuel';
+      const vacancePerc = parseFloat(document.getElementById('vacance').value) || 0;
+      const charges = parseFormattedValue(document.getElementById('charges').value);
+      const entretien = parseFormattedValue(document.getElementById('entretien').value);
+      const regime = document.querySelector('input[name="regime"]:checked').value;
+      const tmi = parseFloat(document.getElementById('tmi').value) || 0;
+
+      const notaireEuro = (valeur * notairePerc) / 100;
+      document.getElementById('notaireEuroTxt').innerText = formatNumber(notaireEuro) + " €";
+
+      const coutTotal = valeur + agence + travaux + notaireEuro + garantie;
+      const montantPret = Math.max(0, coutTotal - apport);
+      const loyerEffectifAnnuel = (isMensuel ? loyerInput * 12 : loyerInput) * (1 - (vacancePerc / 100));
+
+      let mensualite = 0;
+      if (montantPret > 0 && duree > 0) {
+        const tMensuel = (taux / 100) / 12;
+        mensualite = tMensuel === 0 ? montantPret / (duree * 12) : (montantPret * tMensuel) / (1 - Math.pow(1 + tMensuel, -(duree * 12)));
+      }
+
+      let labels = [], dataPatrimoine = [], dataCFCumule = [], dataImpots = [];
+      let crd = montantPret;
+      let cfCumule = 0;
+      let amortissementIS = (valeur + agence + notaireEuro) * 0.03;
+      let stockAmortissementLMNP = 0;
+
+      for (let an = 1; an <= duree; an++) {
+        let interets = crd * (taux / 100);
+        let capital = (mensualite * 12) - interets;
+        crd = Math.max(0, crd - capital);
+
+        let baseImposable = loyerEffectifAnnuel - charges - entretien - interets;
+        let impotAnnee = 0;
+
+        if (regime === 'foncier' && baseImposable > 0) {
+          impotAnnee = baseImposable * (tmi / 100);
+        } else if (regime === 'is') {
+          let baseIS = baseImposable - amortissementIS;
+          if (baseIS > 0) impotAnnee = baseIS * 0.15;
+        } else if (regime === 'lmnp') {
+          let dotation = (valeur * 0.8) / 30;
+          if (an <= 10) dotation += (travaux + agence + notaireEuro) / 10;
+          stockAmortissementLMNP += dotation;
+
+          if (baseImposable > 0) {
+              let amortUtilise = Math.min(stockAmortissementLMNP, baseImposable);
+              stockAmortissementLMNP -= amortUtilise;
+              let baseLMNP = baseImposable - amortUtilise;
+              if(baseLMNP > 0) impotAnnee = baseLMNP * (tmi / 100);
+          }
+        }
+
+        let cf = loyerEffectifAnnuel - charges - entretien - impotAnnee - (mensualite * 12);
+        cfCumule += cf;
+
+        let valeurAnnee = valeur + ((revente - valeur) / duree) * an;
+
+        labels.push(an);
+        dataPatrimoine.push(Math.round(valeurAnnee - crd + cfCumule));
+        dataCFCumule.push(Math.round(cfCumule));
+        dataImpots.push(Math.round(impotAnnee));
+      }
+
+      const impotAn1 = dataImpots[0] || 0;
+      const cfBrutAn1 = loyerEffectifAnnuel - charges - entretien - (mensualite * 12);
+      const cfNetAn1 = cfBrutAn1 - impotAn1;
+
+      let anneeRenta = "> " + duree;
+      for (let i = 0; i < duree; i++) {
+        if (dataPatrimoine[i] >= apport) {
+          anneeRenta = i + 1;
+          break;
+        }
+      }
+
+      document.getElementById('resTotal').innerText = formatNumber(coutTotal);
+      document.getElementById('resCashflow').innerText = formatNumber(cfBrutAn1 / 12);
+      document.getElementById('resCashflow').style.color = (cfBrutAn1 / 12) >= 0 ? 'var(--positive)' : 'var(--negative)';
+      document.getElementById('resCashflowNet').innerText = formatNumber(cfNetAn1 / 12);
+      document.getElementById('resCashflowNet').style.color = (cfNetAn1 / 12) >= 0 ? 'var(--positive)' : 'var(--negative)';
+
+      document.getElementById('resBrute').innerText = coutTotal > 0 ? ((isMensuel ? loyerInput * 12 : loyerInput) / coutTotal * 100).toFixed(2) : "0";
+      document.getElementById('resNette').innerText = coutTotal > 0 ? ((loyerEffectifAnnuel - charges - entretien - impotAn1) / coutTotal * 100).toFixed(2) : "0";
+
+      let interetsAn1 = montantPret * (taux / 100);
+      document.getElementById('resROE').innerText = apport > 0 ? (((cfNetAn1 + ((mensualite * 12) - interetsAn1)) / apport) * 100).toFixed(2) : t.infini;
+
+      document.getElementById('resPatrimoineFinal').innerText = formatNumber(dataPatrimoine[dataPatrimoine.length - 1] || 0);
+      document.getElementById('resAnneesRenta').innerText = anneeRenta;
+
+      updateChart(labels, dataPatrimoine, dataCFCumule, dataImpots);
+    }
+
+    function syncCharts(e, activeElements, sourceChart) {
+      const index = activeElements.length ? activeElements[0].index : null;
+      [chartPatrimoine, chartCF, chartImpot].forEach(c => {
+        if (c && c !== sourceChart) {
+          if (index !== null) {
+            c.setActiveElements([{ datasetIndex: 0, index: index }]);
+            c.tooltip.setActiveElements([{ datasetIndex: 0, index: index }], {
+              x: c.scales.x.getPixelForValue(index),
+              y: c.scales.y.getPixelForValue(c.data.datasets[0].data[index])
+            });
+          } else {
+            c.setActiveElements([]);
+            c.tooltip.setActiveElements([], { x: 0, y: 0 });
+          }
+          c.update();
+        }
+      });
+    }
+
+    function clearTooltips() {
+      [chartPatrimoine, chartCF, chartImpot].forEach(c => {
+        if (c) {
+          c.setActiveElements([]);
+          c.tooltip.setActiveElements([], { x: 0, y: 0 });
+          c.update();
+        }
+      });
+    }
+
+    function updateChart(labels, dataPatrimoine, dataCFCumule, dataImpots) {
+      if (typeof Chart === 'undefined') return;
+      const t = translations[currentLang] || translations.fr;
+
+      const gridColor = 'rgba(148, 163, 184, 0.15)';
+      const tickColor = '#94a3b8';
+
+      const unitPlugin = {
+        id: 'unitPlugin',
+        afterDraw: (chart) => {
+          const ctx = chart.ctx;
+          const yAxis = chart.scales.y;
+          if (!yAxis) return;
+          ctx.save();
+          ctx.font = 'bold 12px system-ui, sans-serif';
+          ctx.fillStyle = tickColor;
+          ctx.textAlign = 'left';
+          ctx.fillText('€', yAxis.left, yAxis.top - 8);
+          ctx.restore();
+        }
+      };
+
+      const getOptions = (title) => ({
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 15 } },
+        interaction: { mode: 'index', intersect: false },
+        onHover: (e, activeEls, chart) => syncCharts(e, activeEls, chart),
+        plugins: {
+          title: { display: true, text: title, color: '#f8fafc', font: { size: 14 } },
+          legend: { display: false },
+          tooltip: { callbacks: { label: (c) => ' ' + formatNumber(c.raw) + ' €', title: (t2) => t.chart_year_prefix + t2[0].label } }
+        },
+        scales: {
+          x: {
+            ticks: { maxTicksLimit: 6, color: tickColor },
+            grid: { color: gridColor },
+            title: { display: true, text: t.chart_x_title, color: tickColor }
+          },
+          y: {
+            ticks: { callback: (v) => formatNumber(v), color: tickColor },
+            grid: { color: gridColor }
+          }
+        }
+      });
+
+      if (chartPatrimoine) chartPatrimoine.destroy();
+      chartPatrimoine = new Chart(document.getElementById('patrimoineChart').getContext('2d'), {
+        type: 'line',
+        data: { labels: labels, datasets: [{ data: dataPatrimoine, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.15)', fill: true, tension: 0.1 }] },
+        options: getOptions(t.chart_patrimoine_title),
+        plugins: [unitPlugin]
+      });
+
+      if (chartCF) chartCF.destroy();
+      chartCF = new Chart(document.getElementById('cfChart').getContext('2d'), {
+        type: 'line',
+        data: { labels: labels, datasets: [{ data: dataCFCumule, borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.15)', fill: true, tension: 0.1 }] },
+        options: getOptions(t.chart_cf_title),
+        plugins: [unitPlugin]
+      });
+
+      if (chartImpot) chartImpot.destroy();
+      chartImpot = new Chart(document.getElementById('impotChart').getContext('2d'), {
+        type: 'line',
+        data: { labels: labels, datasets: [{ data: dataImpots, borderColor: '#f87171', backgroundColor: 'rgba(248, 113, 113, 0.15)', fill: true, tension: 0.1 }] },
+        options: getOptions(t.chart_impot_title),
+        plugins: [unitPlugin]
+      });
+    }
+
+    initTooltipPositioning();
+    if (!loadState()) { setEquilibreLoyer(); updateReventeFromScenario(); }
+    else { document.getElementById('loyerSlider').value = parseFormattedValue(document.getElementById('loyer').value); }
+    updateRegimeAvailability(document.querySelector('input[name="bailType"]:checked').value);
+
+    const savedLang = localStorage.getItem('preferred_lang') || (navigator.language.startsWith('pt') ? 'pt' : 'fr');
+    setLanguage(savedLang);
+  </script>
+</body>
+</html>
