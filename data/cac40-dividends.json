@@ -1,0 +1,250 @@
+{
+  "generated_at": null,
+  "source": "twelvedata",
+  "currency": "EUR",
+  "exchange": "XPAR",
+  "failures": [],
+  "_comment": "Fichier initial : historiques vides, en attente de la premiere execution de .github/workflows/update-dividends.yml. Aucune donnee de dividende n a ete saisie a la main.",
+  "stocks": [
+    {
+      "symbol": "AI",
+      "name": "Air Liquide",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "AIR",
+      "name": "Airbus",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "ALO",
+      "name": "Alstom",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "MT",
+      "name": "ArcelorMittal",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "CS",
+      "name": "AXA",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "BNP",
+      "name": "BNP Paribas",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "EN",
+      "name": "Bouygues",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "CAP",
+      "name": "Capgemini",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "CA",
+      "name": "Carrefour",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "ACA",
+      "name": "Crédit Agricole",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "BN",
+      "name": "Danone",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "DSY",
+      "name": "Dassault Systèmes",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "EDEN",
+      "name": "Edenred",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "ENGI",
+      "name": "Engie",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "EL",
+      "name": "EssilorLuxottica",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "ERF",
+      "name": "Eurofins Scientific",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "RMS",
+      "name": "Hermès International",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "KER",
+      "name": "Kering",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "LR",
+      "name": "Legrand",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "OR",
+      "name": "L'Oréal",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "MC",
+      "name": "LVMH",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "ML",
+      "name": "Michelin",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "ORA",
+      "name": "Orange",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "RI",
+      "name": "Pernod Ricard",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "PUB",
+      "name": "Publicis Groupe",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "RNO",
+      "name": "Renault",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "SAF",
+      "name": "Safran",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "SGO",
+      "name": "Saint-Gobain",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "SAN",
+      "name": "Sanofi",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "SU",
+      "name": "Schneider Electric",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "GLE",
+      "name": "Société Générale",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "STLAP",
+      "name": "Stellantis",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "STMPA",
+      "name": "STMicroelectronics",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "TEP",
+      "name": "Teleperformance",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "HO",
+      "name": "Thales",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "TTE",
+      "name": "TotalEnergies",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "URW",
+      "name": "Unibail-Rodamco-Westfield",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "VIE",
+      "name": "Veolia",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "DG",
+      "name": "Vinci",
+      "dividends": [],
+      "last_sync": null
+    },
+    {
+      "symbol": "VIV",
+      "name": "Vivendi",
+      "dividends": [],
+      "last_sync": null
+    }
+  ]
+}
