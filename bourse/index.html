@@ -6,6 +6,7 @@
   <title>Calculateur Actions & Dividendes</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body { max-width: 900px; margin: 0 auto; padding: 16px; background: var(--bg); color: var(--text-main); overflow-x: hidden; }
 
@@ -52,6 +53,14 @@
 
     .notice { font-size: 0.78em; color: var(--text-sub); line-height: 1.4; margin-top: 10px; padding: 10px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; }
     .sync-info { font-size: 0.72em; color: var(--text-sub); text-align: center; margin-top: 4px; }
+
+    /* Graphique du cours */
+    .chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+    .chart-last { font-size: 1.25em; font-weight: 800; color: var(--text-main); }
+    .chart-change { font-size: 0.9em; font-weight: 700; }
+    .chart-range { font-size: 0.75em; color: var(--text-sub); }
+    .chart-wrapper { height: 200px; width: 100%; position: relative; }
+    .chart-wrapper canvas { display: block; width: 100% !important; height: 100% !important; }
   </style>
 </head>
 <body ontouchstart="">
@@ -81,6 +90,19 @@
       <div class="results-sub"><span data-i18n="net_yield_label">Rentabilité nette</span> : <span id="rentaNette">—</span></div>
     </div>
   </div>
+
+  <fieldset>
+    <legend data-i18n="legend_chart">Cours de l'action</legend>
+    <div class="chart-head">
+      <div>
+        <span class="chart-last" id="chartLast">—</span>
+        <span class="chart-change" id="chartChange"></span>
+      </div>
+      <span class="chart-range" id="chartRange"></span>
+    </div>
+    <div class="chart-wrapper"><canvas id="priceChart"></canvas></div>
+    <div class="empty-state" id="chartEmpty" style="display:none;"></div>
+  </fieldset>
 
   <fieldset>
     <legend data-i18n="legend_stock">Valeur</legend>
@@ -164,6 +186,11 @@
   <script>
     let currentLang = 'fr';
     let dataset = null;
+    let priceChart = null;
+    // Cours de la valeur affichée, mis en cache par symbole : un fichier par
+    // valeur n'est téléchargé qu'une fois, même si l'on revient dessus.
+    const priceCache = new Map();
+    let currentPrices = null;
 
     const translations = {
       fr: {
@@ -173,6 +200,12 @@
         net_label: "Gain net après impôt",
         net_yield_label: "Rentabilité nette",
         legend_stock: "Valeur",
+        legend_chart: "Cours de l'action",
+        chart_price_label: "Cours de clôture",
+        chart_since: "depuis l'acquisition",
+        chart_no_data: "Cours pas encore synchronisés pour cette valeur.",
+        chart_no_range: "Aucun cours disponible sur la période choisie.",
+        chart_purchase: "Acquisition",
         stock_label: "Action du CAC 40",
         div_loading: "Chargement des données…",
         div_none: "Aucun dividende connu pour cette valeur sur la période disponible.",
@@ -219,6 +252,12 @@
         net_label: "Ganho líquido após impostos",
         net_yield_label: "Rentabilidade líquida",
         legend_stock: "Ativo",
+        legend_chart: "Cotação da ação",
+        chart_price_label: "Cotação de fechamento",
+        chart_since: "desde a aquisição",
+        chart_no_data: "Cotações ainda não sincronizadas para este ativo.",
+        chart_no_range: "Nenhuma cotação disponível no período escolhido.",
+        chart_purchase: "Aquisição",
         stock_label: "Ação do CAC 40",
         div_loading: "Carregando dados…",
         div_none: "Nenhum dividendo conhecido para este ativo no período disponível.",
@@ -265,6 +304,12 @@
         net_label: "Ganancia neta tras impuestos",
         net_yield_label: "Rentabilidad neta",
         legend_stock: "Valor",
+        legend_chart: "Cotización de la acción",
+        chart_price_label: "Precio de cierre",
+        chart_since: "desde la adquisición",
+        chart_no_data: "Cotizaciones aún no sincronizadas para este valor.",
+        chart_no_range: "Ninguna cotización disponible en el período elegido.",
+        chart_purchase: "Adquisición",
         stock_label: "Acción del CAC 40",
         div_loading: "Cargando datos…",
         div_none: "Ningún dividendo conocido para este valor en el período disponible.",
@@ -311,6 +356,12 @@
         net_label: "Net gain after tax",
         net_yield_label: "Net return",
         legend_stock: "Stock",
+        legend_chart: "Share price",
+        chart_price_label: "Closing price",
+        chart_since: "since purchase",
+        chart_no_data: "Prices not synced yet for this stock.",
+        chart_no_range: "No price available over the selected period.",
+        chart_purchase: "Purchase",
         stock_label: "CAC 40 stock",
         div_loading: "Loading data…",
         div_none: "No known dividend for this stock over the available period.",
@@ -357,6 +408,12 @@
         net_label: "Guadagno netto dopo le tasse",
         net_yield_label: "Redditività netta",
         legend_stock: "Titolo",
+        legend_chart: "Quotazione dell'azione",
+        chart_price_label: "Prezzo di chiusura",
+        chart_since: "dall'acquisto",
+        chart_no_data: "Quotazioni non ancora sincronizzate per questo titolo.",
+        chart_no_range: "Nessuna quotazione disponibile nel periodo scelto.",
+        chart_purchase: "Acquisto",
         stock_label: "Azione del CAC 40",
         div_loading: "Caricamento dati…",
         div_none: "Nessun dividendo noto per questo titolo nel periodo disponibile.",
@@ -421,6 +478,7 @@
       localStorage.setItem('preferred_lang', lang);
       renderDividends();
       renderSyncInfo();
+      renderChart();
       calculate();
     }
 
@@ -479,6 +537,115 @@
           <span>${d.amount.toFixed(2).replace('.', ',')} €</span>
         </div>`;
       }).join('');
+    }
+
+    /** Charge (et met en cache) les cours d'un symbole. */
+    async function loadPrices(symbol) {
+      if (priceCache.has(symbol)) return priceCache.get(symbol);
+      let prices = [];
+      try {
+        const res = await fetch(`/data/prices/${encodeURIComponent(symbol)}.json`, { cache: 'no-cache' });
+        if (res.ok) {
+          const body = await res.json();
+          prices = Array.isArray(body.prices) ? body.prices : [];
+        }
+      } catch (e) {
+        console.error(`Cours indisponibles pour ${symbol} :`, e);
+      }
+      priceCache.set(symbol, prices);
+      return prices;
+    }
+
+    /**
+     * Graphique du cours de la date d'acquisition à aujourd'hui.
+     * La date de vente n'entre pas dans la fenêtre affichée : le graphique
+     * montre l'évolution complète depuis l'achat, y compris après la cession.
+     */
+    function renderChart() {
+      const tt = t();
+      const emptyEl = document.getElementById('chartEmpty');
+      const wrapper = document.querySelector('.chart-wrapper');
+      const lastEl = document.getElementById('chartLast');
+      const changeEl = document.getElementById('chartChange');
+      const rangeEl = document.getElementById('chartRange');
+
+      const showEmpty = (msg) => {
+        emptyEl.innerText = msg;
+        emptyEl.style.display = 'block';
+        wrapper.style.display = 'none';
+        lastEl.innerText = '—';
+        changeEl.innerText = '';
+        rangeEl.innerText = '';
+        if (priceChart) { priceChart.destroy(); priceChart = null; }
+      };
+
+      if (!currentPrices || currentPrices.length === 0) return showEmpty(tt.chart_no_data);
+
+      const dateAchat = document.getElementById('dateAchat').value;
+      const today = new Date().toISOString().slice(0, 10);
+      const points = currentPrices.filter(([d]) => (!dateAchat || d >= dateAchat) && d <= today);
+
+      if (points.length === 0) return showEmpty(tt.chart_no_range);
+
+      emptyEl.style.display = 'none';
+      wrapper.style.display = 'block';
+
+      const first = points[0][1];
+      const last = points[points.length - 1][1];
+      const variation = first > 0 ? ((last - first) / first) * 100 : NaN;
+
+      lastEl.innerText = last.toFixed(2).replace('.', ',') + ' €';
+      changeEl.innerText = (variation >= 0 ? '+' : '') + formatPct(variation) + ' ' + tt.chart_since;
+      changeEl.className = 'chart-change ' + (variation >= 0 ? 'positive' : 'negative');
+      rangeEl.innerText = `${points[0][0]} → ${points[points.length - 1][0]}`;
+
+      if (typeof Chart === 'undefined') return; // CDN indisponible : on garde les chiffres
+
+      const accent = variation >= 0 ? '#34d399' : '#f87171';
+      const fill = variation >= 0 ? 'rgba(52, 211, 153, 0.15)' : 'rgba(248, 113, 113, 0.15)';
+
+      if (priceChart) priceChart.destroy();
+      priceChart = new Chart(document.getElementById('priceChart').getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: points.map(([d]) => d),
+          datasets: [{
+            data: points.map(([, c]) => c),
+            borderColor: accent,
+            backgroundColor: fill,
+            fill: true,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHitRadius: 12,
+            tension: 0.1,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (c) => ` ${tt.chart_price_label} : ${c.raw.toFixed(2).replace('.', ',')} €`,
+              },
+            },
+          },
+          scales: {
+            x: { ticks: { maxTicksLimit: 5, color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(148, 163, 184, 0.12)' } },
+            y: { ticks: { color: '#94a3b8', font: { size: 10 }, callback: (v) => v + ' €' }, grid: { color: 'rgba(148, 163, 184, 0.12)' } },
+          },
+        },
+      });
+    }
+
+    /** Recharge les cours de la valeur sélectionnée puis redessine. */
+    async function refreshChart() {
+      const stock = selectedStock();
+      if (!stock) { currentPrices = null; renderChart(); return; }
+      currentPrices = await loadPrices(stock.symbol);
+      renderChart();
     }
 
     function renderSyncInfo() {
@@ -660,6 +827,10 @@
       document.getElementById(id).addEventListener('input', calculate);
       document.getElementById(id).addEventListener('change', calculate);
     });
+    // Changer de valeur implique de télécharger ses cours ; changer la date
+    // d'acquisition ne fait que redécouper la série déjà chargée.
+    document.getElementById('stockSelect').addEventListener('change', refreshChart);
+    document.getElementById('dateAchat').addEventListener('change', renderChart);
     document.querySelectorAll('input[name="regime"]').forEach(r => r.addEventListener('change', calculate));
 
     async function init() {
@@ -680,6 +851,7 @@
         return ['pt', 'es', 'en', 'it'].find(l => nav.startsWith(l)) || 'fr';
       };
       changeLang(localStorage.getItem('preferred_lang') || detectLang());
+      refreshChart();
     }
 
     init();
