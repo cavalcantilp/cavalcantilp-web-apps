@@ -1,10 +1,10 @@
 {
   "generated_at": null,
-  "source": "twelvedata",
+  "source": "yahoo-finance",
   "currency": "EUR",
   "exchange": "XPAR",
   "failures": [],
-  "_comment": "Fichier initial : historiques vides, en attente de la premiere execution de .github/workflows/update-market-data.yml. Aucune donnee de dividende n a ete saisie a la main.",
+  "_comment": "Fichier initial : historiques vides, en attente de la premiere execution de .github/workflows/update-market-data.yml. Aucune donnee n a ete saisie a la main.",
   "stocks": [
     {
       "symbol": "AI",
