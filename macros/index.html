@@ -60,6 +60,9 @@
         <select id="langSelect" onchange="changeLang(this.value)">
           <option value="fr">FR</option>
           <option value="pt">PT</option>
+          <option value="es">ES</option>
+          <option value="en">EN</option>
+          <option value="it">IT</option>
         </select>
       </div>
     </div>
@@ -150,6 +153,45 @@
         lbl_fat: "Gorduras",
         lbl_carb: "Carboidratos",
         txt_warn: "⚠️ A meta de calorias é muito baixa para cobrir as proteínas e gorduras!"
+      },
+      es: {
+        back: "← Inicio",
+        title: "Reparto de Macros",
+        subtitle: "Calculadora personalizada",
+        weight: "Peso (kg)",
+        calories: "Calorías (kcal)",
+        protein: "Proteínas",
+        fat: "Grasas",
+        lbl_prot: "Proteínas",
+        lbl_fat: "Grasas",
+        lbl_carb: "Carbohidratos",
+        txt_warn: "⚠️ ¡El objetivo de calorías es demasiado bajo para cubrir el total de proteínas y grasas!"
+      },
+      en: {
+        back: "← Home",
+        title: "Macro Breakdown",
+        subtitle: "Custom calculator",
+        weight: "Weight (kg)",
+        calories: "Calories (kcal)",
+        protein: "Protein",
+        fat: "Fat",
+        lbl_prot: "Protein",
+        lbl_fat: "Fat",
+        lbl_carb: "Carbs",
+        txt_warn: "⚠️ The calorie target is too low to cover total protein and fat!"
+      },
+      it: {
+        back: "← Home",
+        title: "Ripartizione Macro",
+        subtitle: "Calcolatore personalizzato",
+        weight: "Peso (kg)",
+        calories: "Calorie (kcal)",
+        protein: "Proteine",
+        fat: "Grassi",
+        lbl_prot: "Proteine",
+        lbl_fat: "Grassi",
+        lbl_carb: "Carboidrati",
+        txt_warn: "⚠️ L'obiettivo calorico è troppo basso per coprire il totale di proteine e grassi!"
       }
     };
 
@@ -289,7 +331,11 @@
 
     // Initialisation au chargement
     loadUserData();
-    const savedLang = localStorage.getItem('preferred_lang') || (navigator.language.startsWith('pt') ? 'pt' : 'fr');
+    const detectLang = () => {
+      const nav = navigator.language.toLowerCase();
+      return ['pt', 'es', 'en', 'it'].find(l => nav.startsWith(l)) || 'fr';
+    };
+    const savedLang = localStorage.getItem('preferred_lang') || detectLang();
     setLanguage(savedLang);
   </script>
 </body>

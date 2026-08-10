@@ -43,6 +43,9 @@
         <select id="langSelect" onchange="changeLang(this.value)">
           <option value="fr">FR</option>
           <option value="pt">PT</option>
+          <option value="es">ES</option>
+          <option value="en">EN</option>
+          <option value="it">IT</option>
         </select>
       </div>
     </div>
@@ -179,6 +182,105 @@
         txt_day: " kcal/dia",
         txt_maint: "Manutenção: ",
         txt_warn: "⚠️ Atenção: esta meta está abaixo do seu metabolismo basal ("
+      },
+      es: {
+        back: "← Inicio",
+        title: "Objetivo Calórico",
+        subtitle: "Calculadora personalizada",
+        height: "Altura (cm)",
+        weight: "Peso (kg)",
+        age: "Edad",
+        gender: "Sexo",
+        male: "Hombre",
+        female: "Mujer",
+        activity: "Nivel de actividad",
+        act_sedentary: "Sedentario (oficina)",
+        act_light: "Ligero (1-3x / semana)",
+        act_moderate: "Moderado (3-5x / semana)",
+        act_active: "Muy activo (6-7x / semana)",
+        goal: "Objetivo",
+        goal_loss_025: "Pérdida: 0,25 kg / semana (Ligero)",
+        goal_loss_050: "Pérdida: 0,50 kg / semana (Recomendado)",
+        goal_loss_075: "Pérdida: 0,75 kg / semana (Sostenido)",
+        goal_loss_100: "Pérdida: 1,00 kg / semana (Intenso)",
+        goal_loss_150: "Pérdida: 1,50 kg / semana (Agresivo)",
+        goal_maintain: "Mantenimiento del peso",
+        goal_gain_025: "Ganancia: +0,25 kg / semana (Ligero)",
+        goal_gain_050: "Ganancia: +0,50 kg / semana (Recomendado)",
+        btn_calc: "Calcular objetivo",
+        res_target: "Aporte diario objetivo",
+        txt_deficit: "Déficit: -",
+        txt_surplus: "Superávit: +",
+        txt_no_change: "Ajuste: 0 kcal/día",
+        txt_day: " kcal/día",
+        txt_maint: "Mantenimiento: ",
+        txt_warn: "⚠️ Atención: este objetivo está por debajo de tu metabolismo basal ("
+      },
+      en: {
+        back: "← Home",
+        title: "Calorie Target",
+        subtitle: "Custom calculator",
+        height: "Height (cm)",
+        weight: "Weight (kg)",
+        age: "Age",
+        gender: "Gender",
+        male: "Male",
+        female: "Female",
+        activity: "Activity level",
+        act_sedentary: "Sedentary (office job)",
+        act_light: "Light (1-3x / week)",
+        act_moderate: "Moderate (3-5x / week)",
+        act_active: "Very active (6-7x / week)",
+        goal: "Goal",
+        goal_loss_025: "Loss: 0.25 kg / week (Light)",
+        goal_loss_050: "Loss: 0.50 kg / week (Recommended)",
+        goal_loss_075: "Loss: 0.75 kg / week (Sustained)",
+        goal_loss_100: "Loss: 1.00 kg / week (Intense)",
+        goal_loss_150: "Loss: 1.50 kg / week (Aggressive)",
+        goal_maintain: "Weight maintenance",
+        goal_gain_025: "Gain: +0.25 kg / week (Light)",
+        goal_gain_050: "Gain: +0.50 kg / week (Recommended)",
+        btn_calc: "Calculate target",
+        res_target: "Daily target intake",
+        txt_deficit: "Deficit: -",
+        txt_surplus: "Surplus: +",
+        txt_no_change: "Adjustment: 0 kcal/day",
+        txt_day: " kcal/day",
+        txt_maint: "Maintenance: ",
+        txt_warn: "⚠️ Warning: this goal goes below your basal metabolic rate ("
+      },
+      it: {
+        back: "← Home",
+        title: "Obiettivo Calorico",
+        subtitle: "Calcolatore su misura",
+        height: "Altezza (cm)",
+        weight: "Peso (kg)",
+        age: "Età",
+        gender: "Sesso",
+        male: "Uomo",
+        female: "Donna",
+        activity: "Livello di attività",
+        act_sedentary: "Sedentario (ufficio)",
+        act_light: "Leggero (1-3x / settimana)",
+        act_moderate: "Moderato (3-5x / settimana)",
+        act_active: "Molto attivo (6-7x / settimana)",
+        goal: "Obiettivo",
+        goal_loss_025: "Perdita: 0,25 kg / settimana (Leggero)",
+        goal_loss_050: "Perdita: 0,50 kg / settimana (Consigliato)",
+        goal_loss_075: "Perdita: 0,75 kg / settimana (Sostenuto)",
+        goal_loss_100: "Perdita: 1,00 kg / settimana (Intenso)",
+        goal_loss_150: "Perdita: 1,50 kg / settimana (Aggressivo)",
+        goal_maintain: "Mantenimento del peso",
+        goal_gain_025: "Aumento: +0,25 kg / settimana (Leggero)",
+        goal_gain_050: "Aumento: +0,50 kg / settimana (Consigliato)",
+        btn_calc: "Calcola obiettivo",
+        res_target: "Apporto giornaliero obiettivo",
+        txt_deficit: "Deficit: -",
+        txt_surplus: "Surplus: +",
+        txt_no_change: "Regolazione: 0 kcal/giorno",
+        txt_day: " kcal/giorno",
+        txt_maint: "Mantenimento: ",
+        txt_warn: "⚠️ Attenzione: questo obiettivo scende sotto il tuo metabolismo basale ("
       }
     };
 
@@ -281,7 +383,11 @@
 
     // Chargement initial
     loadUserData();
-    const savedLang = localStorage.getItem('preferred_lang') || (navigator.language.startsWith('pt') ? 'pt' : 'fr');
+    const detectLang = () => {
+      const nav = navigator.language.toLowerCase();
+      return ['pt', 'es', 'en', 'it'].find(l => nav.startsWith(l)) || 'fr';
+    };
+    const savedLang = localStorage.getItem('preferred_lang') || detectLang();
     setLanguage(savedLang);
   </script>
 </body>
