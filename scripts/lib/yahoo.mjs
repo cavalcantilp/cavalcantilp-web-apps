@@ -9,8 +9,11 @@
  * préavis. Les scripts appelants doivent donc traiter un échec comme normal et
  * conserver les données précédentes plutôt que de les écraser.
  *
- * Appelée depuis une GitHub Action (côté serveur) : aucune contrainte CORS,
- * contrairement à un appel depuis le navigateur.
+ * ⚠️ NE FONCTIONNE PAS depuis un runner GitHub : Yahoo répond 429 dès la
+ * première requête, avant tout volume — ce sont les adresses IP de centres de
+ * données qui sont refusées, pas notre cadence. Ce code reste valide et tourne
+ * correctement depuis une connexion ordinaire ; seul le lieu d'exécution pose
+ * problème. Ralentir les appels ne changerait rien.
  */
 
 const API_BASE = process.env.YAHOO_API_BASE || 'https://query1.finance.yahoo.com';

@@ -3,9 +3,12 @@ name: Update CAC 40 market data
 # Rafraîchit cours et dividendes une fois par jour. Les dividendes changent
 # rarement et les cours quotidiennement : un passage par jour suffit.
 on:
-  schedule:
-    - cron: '0 5 * * *'
-  workflow_dispatch: # permet aussi de lancer la synchro à la main
+  # Planification suspendue : aucune source gratuite ne fonctionne encore
+  # depuis un runner GitHub (voir scripts/lib/yahoo.mjs). La réactiver dès
+  # qu'une source viable est retenue, sinon l'Action échoue tous les jours.
+  # schedule:
+  #   - cron: '0 5 * * *'
+  workflow_dispatch: # lancement à la main uniquement, pour l'instant
 
 # Nécessaire pour que l'Action puisse committer les données mises à jour.
 permissions:
