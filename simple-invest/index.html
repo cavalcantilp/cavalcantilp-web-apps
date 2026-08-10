@@ -70,6 +70,9 @@
       <select id="langSelect" onchange="changeLang(this.value)">
         <option value="fr">FR</option>
         <option value="pt">PT</option>
+        <option value="es">ES</option>
+        <option value="en">EN</option>
+        <option value="it">IT</option>
       </select>
     </div>
   </div>
@@ -125,6 +128,51 @@
         add_button: "Adicionar um investimento",
         remove_label: "Remover",
         empty_state: "Nenhum investimento no momento. Clique em + para começar."
+      },
+      es: {
+        back: "← Inicio",
+        title: "📈 Calculadora de Inversión Simple",
+        subtitle: "Interés compuesto — añade tantas inversiones como quieras",
+        total_label: "Capital total estimado",
+        invest_label: "Inversión",
+        apport_label: "Aporte (€)",
+        taux_label: "Tasa de rendimiento (%/año)",
+        duree_label: "Duración",
+        ans_suffix: "años",
+        result_prefix: "Dinero después de",
+        add_button: "Añadir una inversión",
+        remove_label: "Eliminar",
+        empty_state: "Ninguna inversión por ahora. Haz clic en + para empezar."
+      },
+      en: {
+        back: "← Home",
+        title: "📈 Simple Investment Calculator",
+        subtitle: "Compound interest — add as many investments as you like",
+        total_label: "Estimated total capital",
+        invest_label: "Investment",
+        apport_label: "Contribution (€)",
+        taux_label: "Growth rate (%/year)",
+        duree_label: "Duration",
+        ans_suffix: "years",
+        result_prefix: "Money after",
+        add_button: "Add an investment",
+        remove_label: "Remove",
+        empty_state: "No investments yet. Click + to get started."
+      },
+      it: {
+        back: "← Home",
+        title: "📈 Calcolatore Investimento Semplice",
+        subtitle: "Interesse composto — aggiungi tutti gli investimenti che vuoi",
+        total_label: "Capitale totale stimato",
+        invest_label: "Investimento",
+        apport_label: "Contributo (€)",
+        taux_label: "Tasso di rendimento (%/anno)",
+        duree_label: "Durata",
+        ans_suffix: "anni",
+        result_prefix: "Denaro dopo",
+        add_button: "Aggiungi un investimento",
+        remove_label: "Rimuovi",
+        empty_state: "Nessun investimento al momento. Clicca su + per iniziare."
       }
     };
 
@@ -286,7 +334,11 @@
       renderAll();
     }
 
-    const savedLang = localStorage.getItem('preferred_lang_invest') || (navigator.language.startsWith('pt') ? 'pt' : 'fr');
+    const detectLang = () => {
+      const nav = navigator.language.toLowerCase();
+      return ['pt', 'es', 'en', 'it'].find(l => nav.startsWith(l)) || 'fr';
+    };
+    const savedLang = localStorage.getItem('preferred_lang_invest') || detectLang();
     changeLang(savedLang);
   </script>
 </body>

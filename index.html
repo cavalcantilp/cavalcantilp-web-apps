@@ -78,6 +78,9 @@
       <select id="langSelect" onchange="changeLang(this.value)">
         <option value="fr">FR</option>
         <option value="pt">PT</option>
+        <option value="es">ES</option>
+        <option value="en">EN</option>
+        <option value="it">IT</option>
       </select>
     </div>
 
@@ -147,6 +150,45 @@
         app_locatif_desc: "Calcule a rentabilidade dos seus investimentos imobiliários.",
         install_btn: "Baixar o aplicativo",
         install_ios: "Para instalar: toque em Compartilhar ⎋ e 'Adicionar à Tela de Início' ➕"
+      },
+      es: {
+        subtitle: "Selecciona una aplicación para empezar",
+        app_calories_title: "Calculadora de metabolismo",
+        app_calories_desc: "Calcula tus necesidades energéticas y tu déficit personalizado.",
+        app_macros_title: "Reparto de macros",
+        app_macros_desc: "Ajusta tus proteínas, grasas y carbohidratos según tu objetivo.",
+        app_simple_invest_title: "Inversión Simple",
+        app_simple_invest_desc: "Interés compuesto — añade tantas inversiones como quieras.",
+        app_locatif_title: "Calculadora de Inversión Inmobiliaria",
+        app_locatif_desc: "Calcula la rentabilidad de tus inversiones inmobiliarias.",
+        install_btn: "Descargar la aplicación",
+        install_ios: "Para instalar: toca Compartir ⎋ y luego 'Añadir a pantalla de inicio' ➕"
+      },
+      en: {
+        subtitle: "Select an app to get started",
+        app_calories_title: "Metabolism calculator",
+        app_calories_desc: "Calculate your energy needs and personalized deficit.",
+        app_macros_title: "Macro breakdown",
+        app_macros_desc: "Adjust your protein, fat and carbs based on your goal.",
+        app_simple_invest_title: "Simple Investment",
+        app_simple_invest_desc: "Compound interest — add as many investments as you like.",
+        app_locatif_title: "Rental Investment Calculator",
+        app_locatif_desc: "Calculate the profitability of your rental investments.",
+        install_btn: "Download the app",
+        install_ios: "To install: tap Share ⎋ then 'Add to Home Screen' ➕"
+      },
+      it: {
+        subtitle: "Seleziona un'app per iniziare",
+        app_calories_title: "Calcolatore del metabolismo",
+        app_calories_desc: "Calcola il tuo fabbisogno energetico e il tuo deficit personalizzato.",
+        app_macros_title: "Ripartizione macro",
+        app_macros_desc: "Regola proteine, grassi e carboidrati in base al tuo obiettivo.",
+        app_simple_invest_title: "Investimento Semplice",
+        app_simple_invest_desc: "Interesse composto — aggiungi tutti gli investimenti che vuoi.",
+        app_locatif_title: "Calcolatore Investimento Immobiliare",
+        app_locatif_desc: "Calcola la redditività dei tuoi investimenti immobiliari.",
+        install_btn: "Scarica l'app",
+        install_ios: "Per installare: tocca Condividi ⎋ poi 'Aggiungi a Home' ➕"
       }
     };
 
@@ -165,7 +207,11 @@
       setLanguage(lang);
     }
 
-    const savedLang = localStorage.getItem('preferred_lang') || (navigator.language.startsWith('pt') ? 'pt' : 'fr');
+    const detectLang = () => {
+      const nav = navigator.language.toLowerCase();
+      return ['pt', 'es', 'en', 'it'].find(l => nav.startsWith(l)) || 'fr';
+    };
+    const savedLang = localStorage.getItem('preferred_lang') || detectLang();
     setLanguage(savedLang);
 
     // Détection PWA (Android / Desktop vs iOS)
