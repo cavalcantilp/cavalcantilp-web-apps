@@ -26,12 +26,20 @@ jobs:
         with:
           node-version: '20'
 
+      # Dividendes et cours sont deux jeux de données indépendants : l'un peut
+      # être hors du plan souscrit, ou échouer temporairement, sans que cela
+      # doive priver l'app de l'autre. On les laisse donc se terminer tous les
+      # deux, on committe ce qui a été récupéré, et on échoue à la fin.
       - name: Fetch dividends
+        id: dividends
+        continue-on-error: true
         env:
           TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
         run: node scripts/fetch-dividends.mjs
 
       - name: Fetch prices
+        id: prices
+        continue-on-error: true
         env:
           TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
         run: node scripts/fetch-prices.mjs
@@ -54,3 +62,13 @@ jobs:
           fi
           git commit -m 'chore: update CAC 40 market data'
           git push
+
+      # Les données récupérées sont déjà committées ci-dessus ; on signale
+      # maintenant l'échec pour qu'un jeu de données muet ne passe pas inaperçu.
+      - name: Report fetch failures
+        if: steps.dividends.outcome == 'failure' || steps.prices.outcome == 'failure'
+        run: |
+          echo "Dividendes : ${{ steps.dividends.outcome }}"
+          echo "Cours      : ${{ steps.prices.outcome }}"
+          echo '::error::Une des synchronisations a échoué — voir les étapes ci-dessus.'
+          exit 1
