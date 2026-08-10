@@ -188,7 +188,7 @@
         if (translations[lang] && translations[lang][key] !== undefined) el.innerText = translations[lang][key];
       });
       document.getElementById('langSelect').value = lang;
-      localStorage.setItem('preferred_lang_invest', lang);
+      localStorage.setItem('preferred_lang', lang);
       renderAll();
     }
 
@@ -338,7 +338,7 @@
       const nav = navigator.language.toLowerCase();
       return ['pt', 'es', 'en', 'it'].find(l => nav.startsWith(l)) || 'fr';
     };
-    const savedLang = localStorage.getItem('preferred_lang_invest') || detectLang();
+    const savedLang = localStorage.getItem('preferred_lang') || detectLang();
     changeLang(savedLang);
   </script>
 </body>
