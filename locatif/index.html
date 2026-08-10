@@ -60,6 +60,8 @@
     @media (min-width: 600px) { .res-grid { grid-template-columns: 1fr 1fr; gap: 15px; } }
     .cf-highlight { font-weight: bold; font-size: 1.1em; }
 
+    .patrimoine-slider-block { margin-top: 18px; padding-top: 15px; border-top: 1px solid var(--border); }
+
     .charts-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; width: 100%; }
     .chart-wrapper { height: 200px; width: 100%; background: var(--card-bg); padding: 10px; border-radius: 16px; border: 1px solid var(--border); box-sizing: border-box; position: relative; }
     canvas { display: block; width: 100% !important; height: 100% !important; }
@@ -252,12 +254,31 @@
     <div class="res-grid">
       <div><strong><span data-i18n="res_cf_brut_label">CF brut</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_res_cf_brut">Loyer - Crédit - Charges - Entretien. Avant impôts.</span></span> :</strong> <span id="resCashflow" class="cf-highlight">0</span><span data-i18n="per_month"> € / mois</span></div>
       <div><strong><span data-i18n="res_cf_net_label">CF net</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_res_cf_net">Cash-flow brut - Impôts payés.</span></span> :</strong> <span id="resCashflowNet" class="cf-highlight">0</span><span data-i18n="per_month"> € / mois</span></div>
+      <div><strong><span data-i18n="res_credit_mensuel_label">Coût du crédit</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_res_credit_mensuel">Mensualité du prêt (capital + intérêts), avant tout loyer ou impôt.</span></span> :</strong> <span id="resCreditMensuel">0</span><span data-i18n="per_month"> € / mois</span></div>
       <div><strong data-i18n="res_brute_label">Rentabilité Brute :</strong> <span id="resBrute">0</span> %</div>
       <div><strong data-i18n="res_nette_label">Rentabilité Nette :</strong> <span id="resNette">0</span> %</div>
       <div><strong data-i18n="res_roe_label">Retour sur Fonds Propres :</strong> <span id="resROE">0</span> %</div>
       <div><strong data-i18n="res_total_label">Coût total du projet :</strong> <span id="resTotal">0</span> €</div>
-      <div><strong><span data-i18n="res_patrimoine_label">Patrimoine net généré</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_res_patrimoine">À la fin du crédit (Valeur bien - Dette + CF cumulé).</span></span> :</strong> <span id="resPatrimoineFinal" style="font-weight: bold; color: var(--accent);">0</span> €</div>
       <div><strong><span data-i18n="res_annees_label">Années pour rentabiliser</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_res_annees">Temps nécessaire pour que le patrimoine généré couvre l'apport initial.</span></span> :</strong> <span id="resAnneesRenta" style="font-weight: bold;">0</span></div>
+    </div>
+
+    <div class="patrimoine-slider-block">
+      <div class="flex-label">
+        <label style="margin:0;" data-i18n="slider_annee_label">Voir le patrimoine à l'année :</label>
+        <span class="highlight" id="patrimoineAnneeDisplay">Année 20</span>
+      </div>
+      <input type="range" id="patrimoineSlider" min="1" max="20" value="20">
+      <div class="res-grid" style="margin-top:12px;">
+        <div class="full-width">
+          <strong><span data-i18n="res_patrimoine_label">Patrimoine net généré</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_res_patrimoine">Pour l'année sélectionnée (Valeur du bien - Dette restante + CF cumulé).</span></span> :</strong> <span id="resPatrimoineAnnee" style="font-weight: bold; color: var(--accent);">0</span> €
+        </div>
+        <div id="tresorerieSCIBlock" class="full-width" style="display:none;">
+          <strong><span data-i18n="res_tresorerie_sci_label">Trésorerie SCI estimée</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_tresorerie_sci">Cash-flow net cumulé conservé dans la société (non distribué), pour l'année sélectionnée.</span></span> :</strong> <span id="resTresorerieSCI">0</span> €
+        </div>
+        <div id="patrimoineBailoutBlock" class="full-width" style="display:none;">
+          <strong><span data-i18n="res_patrimoine_bailout_label">Patrimoine net en cas de cession</span> <span class="tooltip"><span class="info-icon">i</span><span class="tooltiptext" data-i18n="tt_patrimoine_bailout">Si la société vend le bien à l'année sélectionnée : (valeur de revente - dette restante - IS sur la plus-value 15%, amortissements déduits + trésorerie accumulée), puis flat tax de 30% sur le boni au-delà de l'apport initial (dividendes ou boni de liquidation). L'apport ressort sans impôt.</span></span> :</strong> <span id="resPatrimoineBailout">0</span> €
+        </div>
+      </div>
     </div>
   </div>
 
@@ -276,6 +297,9 @@
     // Taux moyens indicatifs (hors assurance), estimés à partir des baromètres publics d'août 2026.
     // À vérifier / ajuster : ces valeurs sont saisies manuellement et ne se mettent pas à jour seules.
     const tauxParDuree = { 1: 2.2, 5: 2.5, 7: 2.7, 10: 2.9, 15: 3.2, 20: 3.4, 25: 3.55, 30: 3.75, 35: 3.95 };
+
+    // Données par année, régénérées à chaque calculate(), utilisées par la glissière "patrimoine".
+    let anneeData = { patrimoine: [], tresorerie: [], bailout: [], duree: 20 };
 
     const translations = {
       fr: {
@@ -333,15 +357,22 @@
         tt_res_cf_brut: "Loyer - Crédit - Charges - Entretien. Avant impôts.",
         res_cf_net_label: "CF net",
         tt_res_cf_net: "Cash-flow brut - Impôts payés.",
+        res_credit_mensuel_label: "Coût du crédit",
+        tt_res_credit_mensuel: "Mensualité du prêt (capital + intérêts), avant tout loyer ou impôt.",
         per_month: " € / mois",
         res_brute_label: "Rentabilité Brute :",
         res_nette_label: "Rentabilité Nette :",
         res_roe_label: "Retour sur Fonds Propres :",
         res_total_label: "Coût total du projet :",
         res_patrimoine_label: "Patrimoine net généré",
-        tt_res_patrimoine: "À la fin du crédit (Valeur bien - Dette + CF cumulé).",
+        tt_res_patrimoine: "Pour l'année sélectionnée (Valeur du bien - Dette restante + CF cumulé).",
         res_annees_label: "Années pour rentabiliser",
         tt_res_annees: "Temps nécessaire pour que le patrimoine généré couvre l'apport initial.",
+        slider_annee_label: "Voir le patrimoine à l'année :",
+        res_tresorerie_sci_label: "Trésorerie SCI estimée",
+        tt_tresorerie_sci: "Cash-flow net cumulé conservé dans la société (non distribué), pour l'année sélectionnée.",
+        res_patrimoine_bailout_label: "Patrimoine net en cas de cession",
+        tt_patrimoine_bailout: "Si la société vend le bien à l'année sélectionnée : valeur de revente - dette restante - impôt sur la plus-value (15%, tenant compte des amortissements) + trésorerie accumulée.",
         infini: "Infini",
         chart_patrimoine_title: "Patrimoine Net",
         chart_cf_title: "Cash-Flow Net Cumulé",
@@ -404,15 +435,22 @@
         tt_res_cf_brut: "Aluguel - Financiamento - Encargos - Manutenção. Antes dos impostos.",
         res_cf_net_label: "CF líquido",
         tt_res_cf_net: "Fluxo de caixa bruto - Impostos pagos.",
+        res_credit_mensuel_label: "Custo do financiamento",
+        tt_res_credit_mensuel: "Prestação do financiamento (capital + juros), antes de qualquer aluguel ou imposto.",
         per_month: " € / mês",
         res_brute_label: "Rentabilidade Bruta:",
         res_nette_label: "Rentabilidade Líquida:",
         res_roe_label: "Retorno sobre Capital Próprio:",
         res_total_label: "Custo total do projeto:",
         res_patrimoine_label: "Patrimônio líquido gerado",
-        tt_res_patrimoine: "Ao final do financiamento (Valor do imóvel - Dívida + CF acumulado).",
+        tt_res_patrimoine: "Para o ano selecionado (Valor do imóvel - Dívida restante + CF acumulado).",
         res_annees_label: "Anos para retorno do investimento",
         tt_res_annees: "Tempo necessário para que o patrimônio gerado cubra a entrada inicial.",
+        slider_annee_label: "Ver o patrimônio no ano:",
+        res_tresorerie_sci_label: "Tesouraria da sociedade estimada",
+        tt_tresorerie_sci: "Fluxo de caixa líquido acumulado retido na sociedade (não distribuído), para o ano selecionado.",
+        res_patrimoine_bailout_label: "Patrimônio líquido em caso de venda",
+        tt_patrimoine_bailout: "Se a sociedade vender o imóvel no ano selecionado: (valor de revenda - dívida restante - IS sobre a mais-valia 15%, deduzidas as amortizações + tesouraria acumulada), depois flat tax de 30% sobre o excedente acima da entrada inicial (dividendos ou boni de liquidação). A entrada é devolvida sem imposto.",
         infini: "Infinito",
         chart_patrimoine_title: "Patrimônio Líquido",
         chart_cf_title: "Fluxo de Caixa Líquido Acumulado",
@@ -492,7 +530,7 @@
       try {
         const state = {};
         document.querySelectorAll('input, select').forEach(el => {
-          if (el.id === 'langSelect') return;
+          if (el.id === 'langSelect' || el.id === 'patrimoineSlider') return;
           if (el.type === 'radio') { if (el.checked) state[el.name] = el.value; }
           else { state[el.id] = el.value; }
         });
@@ -505,7 +543,7 @@
         const saved = JSON.parse(localStorage.getItem('immoCalcStateV27'));
         if (!saved) return false;
         document.querySelectorAll('input, select').forEach(el => {
-          if (el.id === 'langSelect') return;
+          if (el.id === 'langSelect' || el.id === 'patrimoineSlider') return;
           if (el.type === 'radio') { el.checked = (saved[el.name] === el.value); }
           else if (saved[el.id] !== undefined) { el.value = saved[el.id]; }
         });
@@ -531,6 +569,7 @@
     });
 
     document.getElementById('scenarioMarche').addEventListener('change', updateReventeFromScenario);
+    document.getElementById('valeur').addEventListener('input', updateReventeFromScenario);
 
     function updateReventeFromScenario() {
         const tauxMarche = parseFloat(document.getElementById('scenarioMarche').value) || 0;
@@ -591,7 +630,11 @@
     });
 
     document.querySelectorAll('input, select').forEach(input => {
-      if(input.id !== 'loyerSlider' && input.id !== 'scenarioMarche' && input.id !== 'langSelect') input.addEventListener('input', triggerCalc);
+      if(input.id !== 'loyerSlider' && input.id !== 'scenarioMarche' && input.id !== 'langSelect' && input.id !== 'patrimoineSlider') input.addEventListener('input', triggerCalc);
+    });
+
+    document.getElementById('patrimoineSlider').addEventListener('input', (e) => {
+      renderAnneeSelectionnee(parseInt(e.target.value, 10));
     });
 
     function getEquilibreLoyerMensuel() {
@@ -694,6 +737,33 @@
 
     function triggerCalc() { calculate(); saveState(); }
 
+    // Met à jour l'affichage (patrimoine / trésorerie SCI / patrimoine en cas de cession) pour l'année sélectionnée sur la glissière.
+    function renderAnneeSelectionnee(an) {
+      const t = translations[currentLang] || translations.fr;
+      const duree = anneeData.duree || 1;
+      let annee = an;
+      if (isNaN(annee) || annee < 1) annee = 1;
+      if (annee > duree) annee = duree;
+      document.getElementById('patrimoineSlider').value = annee;
+      document.getElementById('patrimoineAnneeDisplay').innerText = t.chart_year_prefix + annee;
+
+      const idx = annee - 1;
+      document.getElementById('resPatrimoineAnnee').innerText = formatNumber(anneeData.patrimoine[idx] || 0);
+
+      const regime = document.querySelector('input[name="regime"]:checked').value;
+      const blocTresorerie = document.getElementById('tresorerieSCIBlock');
+      const blocBailout = document.getElementById('patrimoineBailoutBlock');
+      if (regime === 'is') {
+        blocTresorerie.style.display = '';
+        blocBailout.style.display = '';
+        document.getElementById('resTresorerieSCI').innerText = formatNumber(anneeData.tresorerie[idx] || 0);
+        document.getElementById('resPatrimoineBailout').innerText = formatNumber(anneeData.bailout[idx] || 0);
+      } else {
+        blocTresorerie.style.display = 'none';
+        blocBailout.style.display = 'none';
+      }
+    }
+
     function calculate() {
       const t = translations[currentLang] || translations.fr;
       const valeur = parseFormattedValue(document.getElementById('valeur').value);
@@ -727,10 +797,12 @@
         mensualite = tMensuel === 0 ? montantPret / (duree * 12) : (montantPret * tMensuel) / (1 - Math.pow(1 + tMensuel, -(duree * 12)));
       }
 
-      let labels = [], dataPatrimoine = [], dataCFCumule = [], dataImpots = [];
+      let labels = [], dataPatrimoine = [], dataCFCumule = [], dataImpots = [], dataBailout = [];
       let crd = montantPret;
       let cfCumule = 0;
       let amortissementIS = (valeur + agence + notaireEuro) * 0.03;
+      let baseAmortissableIS = valeur + agence + notaireEuro;
+      let amortissementCumuleIS = 0;
       let stockAmortissementLMNP = 0;
 
       for (let an = 1; an <= duree; an++) {
@@ -746,6 +818,7 @@
         } else if (regime === 'is') {
           let baseIS = baseImposable - amortissementIS;
           if (baseIS > 0) impotAnnee = baseIS * 0.15;
+          amortissementCumuleIS = Math.min(baseAmortissableIS, amortissementCumuleIS + amortissementIS);
         } else if (regime === 'lmnp') {
           let dotation = (valeur * 0.8) / 30;
           if (an <= 10) dotation += (travaux + agence + notaireEuro) / 10;
@@ -768,6 +841,18 @@
         dataPatrimoine.push(Math.round(valeurAnnee - crd + cfCumule));
         dataCFCumule.push(Math.round(cfCumule));
         dataImpots.push(Math.round(impotAnnee));
+
+        if (regime === 'is') {
+          let nbv = baseAmortissableIS - amortissementCumuleIS;
+          let plusValue = valeurAnnee - nbv;
+          let impotPlusValue = plusValue > 0 ? plusValue * 0.15 : 0;
+          let cashSociete = valeurAnnee - crd - impotPlusValue + cfCumule;
+          let boniImposable = Math.max(0, cashSociete - apport);
+          let impotFlatTax = boniImposable * 0.30;
+          dataBailout.push(Math.round(cashSociete - impotFlatTax));
+        } else {
+          dataBailout.push(0);
+        }
       }
 
       const impotAn1 = dataImpots[0] || 0;
@@ -787,6 +872,7 @@
       document.getElementById('resCashflow').style.color = (cfBrutAn1 / 12) >= 0 ? 'var(--positive)' : 'var(--negative)';
       document.getElementById('resCashflowNet').innerText = formatNumber(cfNetAn1 / 12);
       document.getElementById('resCashflowNet').style.color = (cfNetAn1 / 12) >= 0 ? 'var(--positive)' : 'var(--negative)';
+      document.getElementById('resCreditMensuel').innerText = formatNumber(mensualite);
 
       document.getElementById('resBrute').innerText = coutTotal > 0 ? ((isMensuel ? loyerInput * 12 : loyerInput) / coutTotal * 100).toFixed(2) : "0";
       document.getElementById('resNette').innerText = coutTotal > 0 ? ((loyerEffectifAnnuel - charges - entretien - impotAn1) / coutTotal * 100).toFixed(2) : "0";
@@ -794,8 +880,16 @@
       let interetsAn1 = montantPret * (taux / 100);
       document.getElementById('resROE').innerText = apport > 0 ? (((cfNetAn1 + ((mensualite * 12) - interetsAn1)) / apport) * 100).toFixed(2) : t.infini;
 
-      document.getElementById('resPatrimoineFinal').innerText = formatNumber(dataPatrimoine[dataPatrimoine.length - 1] || 0);
       document.getElementById('resAnneesRenta').innerText = anneeRenta;
+
+      // Données pour la glissière "patrimoine à l'année N"
+      anneeData = { patrimoine: dataPatrimoine, tresorerie: dataCFCumule, bailout: dataBailout, duree: duree };
+      const slider = document.getElementById('patrimoineSlider');
+      slider.max = duree;
+      let anneeCourante = parseInt(slider.value, 10) || duree;
+      if (anneeCourante > duree) anneeCourante = duree;
+      if (anneeCourante < 1) anneeCourante = duree;
+      renderAnneeSelectionnee(anneeCourante);
 
       updateChart(labels, dataPatrimoine, dataCFCumule, dataImpots);
     }
