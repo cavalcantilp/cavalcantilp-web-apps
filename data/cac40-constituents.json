@@ -1,45 +1,205 @@
 {
-  "_comment": "Liste des valeurs interrogées par scripts/fetch-dividends.mjs. La composition du CAC 40 est révisée périodiquement par Euronext : vérifier cette liste lors des revues d'indice et l'ajuster à la main. Les symboles sont ceux d'Euronext Paris (XPAR).",
+  "_comment": "Liste des valeurs interrogees par scripts/fetch-market-data.mjs. La composition du CAC 40 est revisee periodiquement par Euronext : verifier cette liste lors des revues d'indice. 'symbol' est le ticker Euronext Paris, 'yahoo' le symbole cote Yahoo Finance (suffixe .PA) — les deux peuvent diverger, d'ou le champ explicite.",
   "stocks": [
-    { "symbol": "AI", "name": "Air Liquide" },
-    { "symbol": "AIR", "name": "Airbus" },
-    { "symbol": "ALO", "name": "Alstom" },
-    { "symbol": "MT", "name": "ArcelorMittal" },
-    { "symbol": "CS", "name": "AXA" },
-    { "symbol": "BNP", "name": "BNP Paribas" },
-    { "symbol": "EN", "name": "Bouygues" },
-    { "symbol": "CAP", "name": "Capgemini" },
-    { "symbol": "CA", "name": "Carrefour" },
-    { "symbol": "ACA", "name": "Crédit Agricole" },
-    { "symbol": "BN", "name": "Danone" },
-    { "symbol": "DSY", "name": "Dassault Systèmes" },
-    { "symbol": "EDEN", "name": "Edenred" },
-    { "symbol": "ENGI", "name": "Engie" },
-    { "symbol": "EL", "name": "EssilorLuxottica" },
-    { "symbol": "ERF", "name": "Eurofins Scientific" },
-    { "symbol": "RMS", "name": "Hermès International" },
-    { "symbol": "KER", "name": "Kering" },
-    { "symbol": "LR", "name": "Legrand" },
-    { "symbol": "OR", "name": "L'Oréal" },
-    { "symbol": "MC", "name": "LVMH" },
-    { "symbol": "ML", "name": "Michelin" },
-    { "symbol": "ORA", "name": "Orange" },
-    { "symbol": "RI", "name": "Pernod Ricard" },
-    { "symbol": "PUB", "name": "Publicis Groupe" },
-    { "symbol": "RNO", "name": "Renault" },
-    { "symbol": "SAF", "name": "Safran" },
-    { "symbol": "SGO", "name": "Saint-Gobain" },
-    { "symbol": "SAN", "name": "Sanofi" },
-    { "symbol": "SU", "name": "Schneider Electric" },
-    { "symbol": "GLE", "name": "Société Générale" },
-    { "symbol": "STLAP", "name": "Stellantis" },
-    { "symbol": "STMPA", "name": "STMicroelectronics" },
-    { "symbol": "TEP", "name": "Teleperformance" },
-    { "symbol": "HO", "name": "Thales" },
-    { "symbol": "TTE", "name": "TotalEnergies" },
-    { "symbol": "URW", "name": "Unibail-Rodamco-Westfield" },
-    { "symbol": "VIE", "name": "Veolia" },
-    { "symbol": "DG", "name": "Vinci" },
-    { "symbol": "VIV", "name": "Vivendi" }
+    {
+      "symbol": "AI",
+      "name": "Air Liquide",
+      "yahoo": "AI.PA"
+    },
+    {
+      "symbol": "AIR",
+      "name": "Airbus",
+      "yahoo": "AIR.PA"
+    },
+    {
+      "symbol": "ALO",
+      "name": "Alstom",
+      "yahoo": "ALO.PA"
+    },
+    {
+      "symbol": "MT",
+      "name": "ArcelorMittal",
+      "yahoo": "MT.PA"
+    },
+    {
+      "symbol": "CS",
+      "name": "AXA",
+      "yahoo": "CS.PA"
+    },
+    {
+      "symbol": "BNP",
+      "name": "BNP Paribas",
+      "yahoo": "BNP.PA"
+    },
+    {
+      "symbol": "EN",
+      "name": "Bouygues",
+      "yahoo": "EN.PA"
+    },
+    {
+      "symbol": "CAP",
+      "name": "Capgemini",
+      "yahoo": "CAP.PA"
+    },
+    {
+      "symbol": "CA",
+      "name": "Carrefour",
+      "yahoo": "CA.PA"
+    },
+    {
+      "symbol": "ACA",
+      "name": "Crédit Agricole",
+      "yahoo": "ACA.PA"
+    },
+    {
+      "symbol": "BN",
+      "name": "Danone",
+      "yahoo": "BN.PA"
+    },
+    {
+      "symbol": "DSY",
+      "name": "Dassault Systèmes",
+      "yahoo": "DSY.PA"
+    },
+    {
+      "symbol": "EDEN",
+      "name": "Edenred",
+      "yahoo": "EDEN.PA"
+    },
+    {
+      "symbol": "ENGI",
+      "name": "Engie",
+      "yahoo": "ENGI.PA"
+    },
+    {
+      "symbol": "EL",
+      "name": "EssilorLuxottica",
+      "yahoo": "EL.PA"
+    },
+    {
+      "symbol": "ERF",
+      "name": "Eurofins Scientific",
+      "yahoo": "ERF.PA"
+    },
+    {
+      "symbol": "RMS",
+      "name": "Hermès International",
+      "yahoo": "RMS.PA"
+    },
+    {
+      "symbol": "KER",
+      "name": "Kering",
+      "yahoo": "KER.PA"
+    },
+    {
+      "symbol": "LR",
+      "name": "Legrand",
+      "yahoo": "LR.PA"
+    },
+    {
+      "symbol": "OR",
+      "name": "L'Oréal",
+      "yahoo": "OR.PA"
+    },
+    {
+      "symbol": "MC",
+      "name": "LVMH",
+      "yahoo": "MC.PA"
+    },
+    {
+      "symbol": "ML",
+      "name": "Michelin",
+      "yahoo": "ML.PA"
+    },
+    {
+      "symbol": "ORA",
+      "name": "Orange",
+      "yahoo": "ORA.PA"
+    },
+    {
+      "symbol": "RI",
+      "name": "Pernod Ricard",
+      "yahoo": "RI.PA"
+    },
+    {
+      "symbol": "PUB",
+      "name": "Publicis Groupe",
+      "yahoo": "PUB.PA"
+    },
+    {
+      "symbol": "RNO",
+      "name": "Renault",
+      "yahoo": "RNO.PA"
+    },
+    {
+      "symbol": "SAF",
+      "name": "Safran",
+      "yahoo": "SAF.PA"
+    },
+    {
+      "symbol": "SGO",
+      "name": "Saint-Gobain",
+      "yahoo": "SGO.PA"
+    },
+    {
+      "symbol": "SAN",
+      "name": "Sanofi",
+      "yahoo": "SAN.PA"
+    },
+    {
+      "symbol": "SU",
+      "name": "Schneider Electric",
+      "yahoo": "SU.PA"
+    },
+    {
+      "symbol": "GLE",
+      "name": "Société Générale",
+      "yahoo": "GLE.PA"
+    },
+    {
+      "symbol": "STLAP",
+      "name": "Stellantis",
+      "yahoo": "STLAP.PA"
+    },
+    {
+      "symbol": "STMPA",
+      "name": "STMicroelectronics",
+      "yahoo": "STMPA.PA"
+    },
+    {
+      "symbol": "TEP",
+      "name": "Teleperformance",
+      "yahoo": "TEP.PA"
+    },
+    {
+      "symbol": "HO",
+      "name": "Thales",
+      "yahoo": "HO.PA"
+    },
+    {
+      "symbol": "TTE",
+      "name": "TotalEnergies",
+      "yahoo": "TTE.PA"
+    },
+    {
+      "symbol": "URW",
+      "name": "Unibail-Rodamco-Westfield",
+      "yahoo": "URW.PA"
+    },
+    {
+      "symbol": "VIE",
+      "name": "Veolia",
+      "yahoo": "VIE.PA"
+    },
+    {
+      "symbol": "DG",
+      "name": "Vinci",
+      "yahoo": "DG.PA"
+    },
+    {
+      "symbol": "VIV",
+      "name": "Vivendi",
+      "yahoo": "VIV.PA"
+    }
   ]
 }

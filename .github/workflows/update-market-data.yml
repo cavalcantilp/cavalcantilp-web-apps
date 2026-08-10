@@ -1,19 +1,18 @@
 name: Update CAC 40 market data
 
-# Rafraîchit dividendes et cours une fois par jour. Les dividendes
-# changent rarement : un passage quotidien suffit largement et reste très
-# en dessous du quota du plan gratuit (80 appels sur 800 crédits/jour).
+# Rafraîchit cours et dividendes une fois par jour. Les dividendes changent
+# rarement et les cours quotidiennement : un passage par jour suffit.
 on:
   schedule:
     - cron: '0 5 * * *'
   workflow_dispatch: # permet aussi de lancer la synchro à la main
 
-# Nécessaire pour que l'Action puisse committer le JSON mis à jour.
+# Nécessaire pour que l'Action puisse committer les données mises à jour.
 permissions:
   contents: write
 
 concurrency:
-  group: update-dividends
+  group: update-market-data
   cancel-in-progress: false
 
 jobs:
@@ -24,33 +23,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
-      # Dividendes et cours sont deux jeux de données indépendants : l'un peut
-      # être hors du plan souscrit, ou échouer temporairement, sans que cela
-      # doive priver l'app de l'autre. On les laisse donc se terminer tous les
-      # deux, on committe ce qui a été récupéré, et on échoue à la fin.
-      # TEMPORAIRE : diagnostic de la forme des symboles, à retirer une fois
-      # la bonne forme confirmée (diagnose.yml prend le relais après merge).
-      - name: Diagnose symbol format
-        continue-on-error: true
-        env:
-          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
-        run: node scripts/diagnose-symbol.mjs
-
-      - name: Fetch dividends
-        id: dividends
-        continue-on-error: true
-        env:
-          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
-        run: node scripts/fetch-dividends.mjs
-
-      - name: Fetch prices
-        id: prices
-        continue-on-error: true
-        env:
-          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
-        run: node scripts/fetch-prices.mjs
+      # Aucune clé : la source est publique. Un échec laisse les données
+      # précédentes en place, l'app continue de fonctionner avec.
+      - name: Fetch market data
+        run: node scripts/fetch-market-data.mjs
 
       - name: Commit updated data
         run: |
@@ -70,13 +48,3 @@ jobs:
           fi
           git commit -m 'chore: update CAC 40 market data'
           git push
-
-      # Les données récupérées sont déjà committées ci-dessus ; on signale
-      # maintenant l'échec pour qu'un jeu de données muet ne passe pas inaperçu.
-      - name: Report fetch failures
-        if: steps.dividends.outcome == 'failure' || steps.prices.outcome == 'failure'
-        run: |
-          echo "Dividendes : ${{ steps.dividends.outcome }}"
-          echo "Cours      : ${{ steps.prices.outcome }}"
-          echo '::error::Une des synchronisations a échoué — voir les étapes ci-dessus.'
-          exit 1
