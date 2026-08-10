@@ -7,6 +7,7 @@
 
   <!-- Manifest PWA -->
   <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/styles.css">
 
   <!-- Favicons Standard -->
   <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
@@ -19,38 +20,22 @@
   <meta name="apple-mobile-web-app-title" content="Cavalcanti">
 
   <style>
-    :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --accent: #38bdf8;
-      --text-main: #f8fafc;
-      --text-sub: #94a3b8;
-      --border: #475569;
-      --input-bg: #334155;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--bg); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; }
-    
+
     .container { width: 100%; max-width: 600px; text-align: center; position: relative; }
-    
-    .logo { 
-      width: 120px; 
-      height: 120px; 
-      border-radius: 50%; 
+
+    .logo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
       clip-path: circle(44% at center);
-      object-fit: cover; 
-      margin: 0 auto 20px auto; 
-      display: block; 
+      object-fit: cover;
+      margin: 0 auto 20px auto;
+      display: block;
     }
 
     .lang-selector { position: absolute; top: 0; right: 0; }
-    .lang-selector select {
-      background: transparent; color: var(--text-sub); border: 1px solid var(--border);
-      padding: 4px 8px; border-radius: 6px; cursor: pointer; outline: none;
-      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; transition: all 0.2s ease;
-    }
-    .lang-selector select:hover { color: var(--text-main); border-color: var(--accent); }
+    .lang-selector select { padding: 4px 8px; }
 
     .header { margin-bottom: 32px; }
     .header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
