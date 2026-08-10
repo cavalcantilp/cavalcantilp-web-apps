@@ -570,6 +570,26 @@
 
     document.getElementById('scenarioMarche').addEventListener('change', updateReventeFromScenario);
     document.getElementById('valeur').addEventListener('input', updateReventeFromScenario);
+    document.getElementById('valeur').addEventListener('input', updateGarantieEstimee);
+    document.getElementById('agence').addEventListener('input', updateGarantieEstimee);
+    document.getElementById('travaux').addEventListener('input', updateGarantieEstimee);
+    document.getElementById('notairePerc').addEventListener('input', updateGarantieEstimee);
+    document.getElementById('apport').addEventListener('input', updateGarantieEstimee);
+
+    // Estime la garantie bancaire à 1.2% du montant emprunté (moyenne de la fourchette 1 à 1.5%).
+    function updateGarantieEstimee() {
+      const valeur = parseFormattedValue(document.getElementById('valeur').value);
+      const agence = parseFormattedValue(document.getElementById('agence').value);
+      const travaux = parseFormattedValue(document.getElementById('travaux').value);
+      const notairePerc = parseFloat(document.getElementById('notairePerc').value) || 0;
+      const apport = parseFormattedValue(document.getElementById('apport').value);
+      const notaireEuro = (valeur * notairePerc) / 100;
+      const coutHorsGarantie = valeur + agence + travaux + notaireEuro;
+      const montantPretEstime = Math.max(0, coutHorsGarantie - apport);
+      const nouvelleGarantie = montantPretEstime * 0.012;
+      document.getElementById('garantie').value = formatNumber(nouvelleGarantie);
+      triggerCalc();
+    }
 
     function updateReventeFromScenario() {
         const tauxMarche = parseFloat(document.getElementById('scenarioMarche').value) || 0;
@@ -584,7 +604,7 @@
     document.querySelectorAll('input[name="type"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
         document.getElementById('notairePerc').value = e.target.value === 'ancien' ? 8 : 2.5;
-        triggerCalc();
+        updateGarantieEstimee();
       });
     });
 
@@ -995,7 +1015,7 @@
     }
 
     initTooltipPositioning();
-    if (!loadState()) { setEquilibreLoyer(); updateReventeFromScenario(); }
+    if (!loadState()) { setEquilibreLoyer(); updateReventeFromScenario(); updateGarantieEstimee(); }
     else { document.getElementById('loyerSlider').value = parseFormattedValue(document.getElementById('loyer').value); }
     updateRegimeAvailability(document.querySelector('input[name="bailType"]:checked').value);
 
