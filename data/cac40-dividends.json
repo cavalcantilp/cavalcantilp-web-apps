@@ -1,0 +1,210 @@
+{
+  "generated_at": null,
+  "source": "twelvedata",
+  "currency": "EUR",
+  "exchange": "XPAR",
+  "failures": [],
+  "_comment": "Fichier initial : historiques vides, en attente de la premiere execution de .github/workflows/update-market-data.yml. Aucune donnee de dividende n a ete saisie a la main.",
+  "stocks": [
+    {
+      "symbol": "AI",
+      "name": "Air Liquide",
+      "dividends": []
+    },
+    {
+      "symbol": "AIR",
+      "name": "Airbus",
+      "dividends": []
+    },
+    {
+      "symbol": "ALO",
+      "name": "Alstom",
+      "dividends": []
+    },
+    {
+      "symbol": "MT",
+      "name": "ArcelorMittal",
+      "dividends": []
+    },
+    {
+      "symbol": "CS",
+      "name": "AXA",
+      "dividends": []
+    },
+    {
+      "symbol": "BNP",
+      "name": "BNP Paribas",
+      "dividends": []
+    },
+    {
+      "symbol": "EN",
+      "name": "Bouygues",
+      "dividends": []
+    },
+    {
+      "symbol": "CAP",
+      "name": "Capgemini",
+      "dividends": []
+    },
+    {
+      "symbol": "CA",
+      "name": "Carrefour",
+      "dividends": []
+    },
+    {
+      "symbol": "ACA",
+      "name": "Crédit Agricole",
+      "dividends": []
+    },
+    {
+      "symbol": "BN",
+      "name": "Danone",
+      "dividends": []
+    },
+    {
+      "symbol": "DSY",
+      "name": "Dassault Systèmes",
+      "dividends": []
+    },
+    {
+      "symbol": "EDEN",
+      "name": "Edenred",
+      "dividends": []
+    },
+    {
+      "symbol": "ENGI",
+      "name": "Engie",
+      "dividends": []
+    },
+    {
+      "symbol": "EL",
+      "name": "EssilorLuxottica",
+      "dividends": []
+    },
+    {
+      "symbol": "ERF",
+      "name": "Eurofins Scientific",
+      "dividends": []
+    },
+    {
+      "symbol": "RMS",
+      "name": "Hermès International",
+      "dividends": []
+    },
+    {
+      "symbol": "KER",
+      "name": "Kering",
+      "dividends": []
+    },
+    {
+      "symbol": "LR",
+      "name": "Legrand",
+      "dividends": []
+    },
+    {
+      "symbol": "OR",
+      "name": "L'Oréal",
+      "dividends": []
+    },
+    {
+      "symbol": "MC",
+      "name": "LVMH",
+      "dividends": []
+    },
+    {
+      "symbol": "ML",
+      "name": "Michelin",
+      "dividends": []
+    },
+    {
+      "symbol": "ORA",
+      "name": "Orange",
+      "dividends": []
+    },
+    {
+      "symbol": "RI",
+      "name": "Pernod Ricard",
+      "dividends": []
+    },
+    {
+      "symbol": "PUB",
+      "name": "Publicis Groupe",
+      "dividends": []
+    },
+    {
+      "symbol": "RNO",
+      "name": "Renault",
+      "dividends": []
+    },
+    {
+      "symbol": "SAF",
+      "name": "Safran",
+      "dividends": []
+    },
+    {
+      "symbol": "SGO",
+      "name": "Saint-Gobain",
+      "dividends": []
+    },
+    {
+      "symbol": "SAN",
+      "name": "Sanofi",
+      "dividends": []
+    },
+    {
+      "symbol": "SU",
+      "name": "Schneider Electric",
+      "dividends": []
+    },
+    {
+      "symbol": "GLE",
+      "name": "Société Générale",
+      "dividends": []
+    },
+    {
+      "symbol": "STLAP",
+      "name": "Stellantis",
+      "dividends": []
+    },
+    {
+      "symbol": "STMPA",
+      "name": "STMicroelectronics",
+      "dividends": []
+    },
+    {
+      "symbol": "TEP",
+      "name": "Teleperformance",
+      "dividends": []
+    },
+    {
+      "symbol": "HO",
+      "name": "Thales",
+      "dividends": []
+    },
+    {
+      "symbol": "TTE",
+      "name": "TotalEnergies",
+      "dividends": []
+    },
+    {
+      "symbol": "URW",
+      "name": "Unibail-Rodamco-Westfield",
+      "dividends": []
+    },
+    {
+      "symbol": "VIE",
+      "name": "Veolia",
+      "dividends": []
+    },
+    {
+      "symbol": "DG",
+      "name": "Vinci",
+      "dividends": []
+    },
+    {
+      "symbol": "VIV",
+      "name": "Vivendi",
+      "dividends": []
+    }
+  ]
+}
