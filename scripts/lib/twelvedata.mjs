@@ -34,10 +34,26 @@ export async function apiGet(path, params) {
   url.searchParams.set('apikey', API_KEY);
 
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
 
-  const body = await res.json();
-  if (body.status === 'error') throw new Error(body.message || 'erreur API');
+  // On lit toujours le corps, y compris sur échec HTTP : c'est là que l'API
+  // explique le refus (endpoint hors plan, quota dépassé, clé invalide…).
+  // Sans ça, un 403 ne dit pas ce qu'il faut corriger.
+  const text = await res.text();
+  let body = null;
+  try { body = JSON.parse(text); } catch { /* réponse non JSON : on garde le texte brut */ }
+
+  if (!res.ok) {
+    const detail = body?.message || text.trim().slice(0, 300) || res.statusText;
+    const err = new Error(`HTTP ${res.status} — ${detail}`);
+    err.status = res.status;
+    throw err;
+  }
+
+  if (body?.status === 'error') {
+    const err = new Error(body.message || 'erreur API');
+    err.status = body.code;
+    throw err;
+  }
   return body;
 }
 
@@ -46,14 +62,28 @@ export async function apiGet(path, params) {
  * handler. Une erreur sur une valeur n'interrompt pas les suivantes : elle est
  * collectée et renvoyée dans `failures`.
  */
+// Refus qui ne dépendent pas du symbole : clé invalide, endpoint hors plan,
+// quota épuisé. Inutile de réessayer les 39 valeurs suivantes.
+const FATAL_STATUSES = new Set([401, 403, 429]);
+
 export async function forEachStock(stocks, handler) {
   const failures = [];
-  for (const stock of stocks) {
+  for (const [i, stock] of stocks.entries()) {
     try {
       await handler(stock);
     } catch (err) {
       failures.push(`${stock.symbol} (${err.message})`);
       console.warn(`${stock.symbol} : échec — ${err.message}`);
+
+      // Si la toute première valeur est refusée pour une raison globale, on
+      // s'arrête net : le message est déjà lisible, insister n'apprend rien.
+      if (i === 0 && FATAL_STATUSES.has(err.status)) {
+        console.error(
+          `\nArrêt : l'API refuse la requête (HTTP ${err.status}). ` +
+          `Vérifiez la clé, le plan souscrit et le quota — les autres valeurs échoueraient de la même façon.`
+        );
+        return failures;
+      }
     }
     await sleep(THROTTLE_MS);
   }

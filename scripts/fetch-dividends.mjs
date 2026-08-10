@@ -60,25 +60,34 @@ async function main() {
   }
   const previousBySymbol = new Map((previous.stocks ?? []).map((s) => [s.symbol, s]));
 
-  const stocks = [];
+  const bySymbol = new Map();
+  let succeeded = 0;
 
   const failures = await forEachStock(constituents.stocks, async ({ symbol, name }) => {
     try {
       const dividends = await fetchDividends(symbol);
-      stocks.push({ symbol, name, dividends });
+      bySymbol.set(symbol, { symbol, name, dividends });
+      succeeded++;
       console.log(`${symbol} : ${dividends.length} dividende(s)`);
     } catch (err) {
       // On réinjecte les données précédentes si on en a, sinon une entrée vide
       // pour que la valeur reste listée dans l'app.
-      stocks.push(previousBySymbol.get(symbol) ?? { symbol, name, dividends: [] });
+      bySymbol.set(symbol, previousBySymbol.get(symbol) ?? { symbol, name, dividends: [] });
       throw err;
     }
   });
 
-  // Un échec isolé est toléré (données précédentes conservées), mais si tout
-  // échoue c'est un problème de clé ou de quota : on veut que l'Action échoue.
-  if (failures.length === constituents.stocks.length) {
-    console.error('Tous les symboles ont échoué — clé API ou quota probablement en cause.');
+  // Les valeurs jamais atteintes (arrêt anticipé) gardent leur état connu :
+  // le fichier reste complet, aucune valeur ne disparaît de l'app.
+  const stocks = constituents.stocks.map(({ symbol, name }) =>
+    bySymbol.get(symbol) ?? previousBySymbol.get(symbol) ?? { symbol, name, dividends: [] }
+  );
+
+  // Un échec isolé est toléré (données précédentes conservées), mais si rien
+  // n'a abouti c'est un problème de clé, de plan ou de quota : l'Action doit
+  // échouer pour que le problème soit visible.
+  if (succeeded === 0) {
+    console.error('Aucune valeur récupérée — clé API, plan souscrit ou quota à vérifier.');
     process.exit(1);
   }
 
