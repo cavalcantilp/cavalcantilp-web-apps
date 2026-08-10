@@ -1,0 +1,19 @@
+name: Diagnose market data API
+
+# Utilitaire lancé à la main pour vérifier ce que le plan souscrit autorise
+# (forme des symboles, endpoints accessibles) sans toucher aux données.
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Try symbol variants
+        env:
+          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
+        run: node scripts/diagnose-symbol.mjs

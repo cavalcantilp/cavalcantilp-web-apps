@@ -11,7 +11,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { EXCHANGE, apiGet, forEachStock, requireApiKey } from './lib/twelvedata.mjs';
+import { EXCHANGE, MIC_CODE, apiGet, forEachStock, requireApiKey } from './lib/twelvedata.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CONSTITUENTS_PATH = join(ROOT, 'data', 'cac40-constituents.json');
@@ -35,7 +35,7 @@ function startDate() {
 async function fetchPrices(symbol) {
   const body = await apiGet('/time_series', {
     symbol,
-    exchange: EXCHANGE,
+    mic_code: MIC_CODE,
     interval: '1day',
     start_date: startDate(),
     outputsize: OUTPUT_SIZE,

@@ -30,6 +30,14 @@ jobs:
       # être hors du plan souscrit, ou échouer temporairement, sans que cela
       # doive priver l'app de l'autre. On les laisse donc se terminer tous les
       # deux, on committe ce qui a été récupéré, et on échoue à la fin.
+      # TEMPORAIRE : diagnostic de la forme des symboles, à retirer une fois
+      # la bonne forme confirmée (diagnose.yml prend le relais après merge).
+      - name: Diagnose symbol format
+        continue-on-error: true
+        env:
+          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
+        run: node scripts/diagnose-symbol.mjs
+
       - name: Fetch dividends
         id: dividends
         continue-on-error: true

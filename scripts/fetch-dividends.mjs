@@ -3,14 +3,14 @@
  * Récupère l'historique des dividendes des valeurs du CAC 40 et écrit
  * data/cac40-dividends.json, consommé par l'app /bourse.
  *
- * Lancé par .github/workflows/update-dividends.yml (cron quotidien).
+ * Lancé par .github/workflows/update-market-data.yml (cron quotidien).
  * La clé API vient de l'environnement (GitHub Secrets), jamais du dépôt.
  */
 
 import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { EXCHANGE, apiGet, forEachStock, requireApiKey } from './lib/twelvedata.mjs';
+import { EXCHANGE, MIC_CODE, apiGet, forEachStock, requireApiKey } from './lib/twelvedata.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CONSTITUENTS_PATH = join(ROOT, 'data', 'cac40-constituents.json');
@@ -29,7 +29,7 @@ function startDate() {
 async function fetchDividends(symbol) {
   const body = await apiGet('/dividends', {
     symbol,
-    exchange: EXCHANGE,
+    mic_code: MIC_CODE,
     start_date: startDate(),
   });
 

@@ -9,10 +9,16 @@
 export const API_KEY = process.env.TWELVEDATA_API_KEY;
 // Surchargeable pour les tests (API simulée) ou si l'on passe par un proxy.
 export const API_BASE = process.env.TWELVEDATA_API_BASE || 'https://api.twelvedata.com';
-export const EXCHANGE = 'XPAR';
+// XPAR est un code MIC : il se passe en `mic_code`, pas en `exchange` (qui
+// attend un nom de place). Envoyé en `exchange`, l'API répond 404 « symbol
+// parameter is invalid » — constaté sur les 40 valeurs.
+export const MIC_CODE = 'XPAR';
+export const EXCHANGE = MIC_CODE; // conservé pour l'étiquetage des données
 
-// Pause entre deux appels, pour rester sous la limite de débit du plan gratuit.
-export const THROTTLE_MS = Number(process.env.TWELVEDATA_THROTTLE_MS ?? 1000);
+// Le plan gratuit autorise 8 crédits par minute. Un appel par seconde en
+// consomme 60 : les 8 premiers passent, les 32 suivants sont refusés en 429.
+// 8 s entre deux appels tient sous la limite avec une marge.
+export const THROTTLE_MS = Number(process.env.TWELVEDATA_THROTTLE_MS ?? 8000);
 
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
